@@ -1,0 +1,128 @@
+[
+ {
+  "title": "",
+  "order": 1,
+  "url": null,
+  "parent": "0"
+ },
+ {
+  "title": "RV / MV Communities",
+  "order": 1,
+  "url": "https://www.rvparksales.com/listings/?_listing_category=rv-mh-communities&_listing_status=for-sale",
+  "parent": "0"
+ },
+ {
+  "title": "",
+  "order": 2,
+  "url": null,
+  "parent": "0"
+ },
+ {
+  "title": "RV Campgrounds",
+  "order": 2,
+  "url": "https://www.rvparksales.com/listings/?_listing_category=rv-parks-campgrounds&_listing_status=for-sale",
+  "parent": "0"
+ },
+ {
+  "title": "Explore Parks",
+  "order": 3,
+  "url": "https://www.rvparksales.com/listings/?_listing_status=for-sale",
+  "parent": "0"
+ },
+ {
+  "title": "All Listing for Sale",
+  "order": 3,
+  "url": "https://www.rvparksales.com/listings/?_listing_status=for-sale",
+  "parent": "0"
+ },
+ {
+  "title": "RV Parks / Campgrounds",
+  "order": 4,
+  "url": "https://www.rvparksales.com/listings/?_listing_category=rv-parks-campgrounds&_listing_status=for-sale",
+  "parent": "331"
+ },
+ {
+  "title": "Sold Listings",
+  "order": 4,
+  "url": "https://www.rvparksales.com/listings/?_listing_status=sold",
+  "parent": "0"
+ },
+ {
+  "title": "RV Lots",
+  "order": 5,
+  "url": "https://www.rvparksales.com/listings/?_listing_category=rv-lots&_listing_status=for-sale",
+  "parent": "331"
+ },
+ {
+  "title": "All Listings for Sale",
+  "order": 6,
+  "url": "https://www.rvparksales.com/listings/?_listing_status=for-sale",
+  "parent": "331"
+ },
+ {
+  "title": "Sold Listings",
+  "order": 7,
+  "url": "https://www.rvparksales.com/listings/?_listing_status=sold",
+  "parent": "331"
+ },
+ {
+  "title": "RV Park Brokers",
+  "order": 8,
+  "url": null,
+  "parent": "0"
+ },
+ {
+  "title": "RV Park Developers",
+  "order": 10,
+  "url": null,
+  "parent": "0"
+ },
+ {
+  "title": "",
+  "order": 11,
+  "url": null,
+  "parent": "0"
+ },
+ {
+  "title": "",
+  "order": 12,
+  "url": null,
+  "parent": "0"
+ },
+ {
+  "title": "",
+  "order": 13,
+  "url": null,
+  "parent": "0"
+ },
+ {
+  "title": "Send a Message",
+  "order": 14,
+  "url": null,
+  "parent": "188"
+ },
+ {
+  "title": "Buyers",
+  "order": 15,
+  "url": "#",
+  "parent": "188"
+ },
+ {
+  "title": "Sellers",
+  "order": 16,
+  "url": "https://www.rvparksales.com/contact/#sellers",
+  "parent": "188"
+ },
+ {
+  "title": "Schedule a Free Consultation",
+  "order": 17,
+  "url": "https://calendly.com/marie-rvparksales/30min",
+  "parent": "188"
+ },
+ {
+  "title": "Blog",
+  "order": 18,
+  "url": null,
+  "parent": "0"
+ }
+]
