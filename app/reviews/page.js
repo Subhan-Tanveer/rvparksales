@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { testimonials } from '@/lib/content';
 
 export const metadata = {
@@ -8,25 +7,20 @@ export const metadata = {
 };
 
 export default function ReviewsPage() {
-  const list = testimonials();
   return (
-    <section className="section">
-      <div className="wrap">
-        <p className="eyebrow">Reviews</p>
-        <h1 style={{ fontSize: 'clamp(1.8rem,5vw,2.6rem)' }}>What our clients say</h1>
-        <p className="lede" style={{ marginBottom: 24 }}>Buyers, sellers and brokers who have worked with RVParkSales.com.</p>
-        <div className="grid grid-3">
-          {list.map((t) => (
-            <figure key={t.name + t.date} className="card quote" style={{ margin: 0 }}>
-              <p>“{t.quote}”</p>
-              <cite>— {t.name}</cite>
-            </figure>
+    <section className="l-section">
+      <div className="l-section-h page-title-wrap">
+        <h1 className="page-title">Reviews</h1>
+        <div className="grid-3" style={{ marginTop: 30 }}>
+          {testimonials().map((t) => (
+            <div key={t.name + t.date} className="testi">
+              <p style={{ margin: 0 }}>{t.quote}</p>
+              <div className="quote-name" style={{ marginLeft: 0 }}>{t.name.split(',')[0]}</div>
+              <div className="quote-role" style={{ marginLeft: 0 }}>{t.name.includes(',') ? t.name.split(',').slice(1).join(',').trim() : 'RV Park Client'}</div>
+            </div>
           ))}
         </div>
-        <div className="banner banner-purple" style={{ marginTop: 34 }}>
-          <div><h2>Let's talk about your RV park</h2><p>Buying or selling, we're happy to help.</p></div>
-          <Link href="/contact/" className="btn btn-purple">Contact Us</Link>
-        </div>
+        <p style={{ marginTop: 34 }}><a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn" target="_blank" rel="noopener">Leave A Review</a></p>
       </div>
     </section>
   );

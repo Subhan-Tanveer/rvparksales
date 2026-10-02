@@ -1,30 +1,43 @@
 import './globals.css';
-import { Inter, Poppins } from 'next/font/google';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import MobileBar from '@/components/MobileBar';
+import Script from 'next/script';
+import { Rubik, Montserrat } from 'next/font/google';
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
 import { SITE } from '@/lib/content';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
-const poppins = Poppins({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-poppins', display: 'swap' });
+// Same two fonts as the current site: Rubik for text and the menu,
+// Montserrat for headings.
+const rubik = Rubik({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-rubik', display: 'swap' });
+const montserrat = Montserrat({ subsets: ['latin'], weight: ['600', '700', '900'], variable: '--font-montserrat', display: 'swap' });
 
 export const metadata = {
   metadataBase: new URL(SITE.url),
-  title: { default: 'RV Park Sales — RV Parks and Campgrounds For Sale in the USA', template: '%s | RVParkSales.com' },
-  description: 'America\'s RV park marketplace. Search RV parks and campgrounds for sale, connect with RV park brokers, get first-look access with RVParkSelect, or advertise your park with RVParkAds.',
-  openGraph: { siteName: 'RVParkSales.com', type: 'website' },
-  // Preview copies must not be indexed (see app/robots.js); switched on at launch.
+  title: { default: 'RV Park Sales - USA - RV Parks and Campgrounds For Sale', template: '%s - RV Park Sales' },
+  description: 'RV Park Sales brings buyers and sellers together to sell RV parks and campgrounds all over the US. Based in Panama City Beach, Florida.',
+  openGraph: { siteName: 'RV Park Sales', type: 'website' },
+  // Preview copies must not be indexed (see app/robots.txt/route.js); switched on at launch.
   robots: process.env.ALLOW_INDEXING === 'true' ? undefined : { index: false, follow: false },
 };
 
 export default function RootLayout({ children }) {
+  // Third-party widgets the current site already uses (GoHighLevel chat,
+  // DigitalRez review popup, Google Analytics). They only load on the real
+  // domain, so the preview does not send visits or chats to Marie's accounts.
+  const live = process.env.ALLOW_INDEXING === 'true';
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="en" className={`${rubik.variable} ${montserrat.variable}`}>
       <body>
-        <Header />
-        <main>{children}</main>
-        <Footer />
-        <MobileBar />
+        <SiteHeader />
+        <main className="l-main">{children}</main>
+        <SiteFooter />
+        {live && (
+          <>
+            <Script src="https://widgets.leadconnectorhq.com/loader.js" data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js" data-widget-id="69ef73357ae751e214e5f227" strategy="lazyOnload" />
+            <Script src="https://digitalrez.reviewbadges.com/website_marketing/show_popup_widget/RK-50161-51962-15921-v2.js" strategy="lazyOnload" />
+            <Script src="https://www.googletagmanager.com/gtag/js?id=G-XZM1G5ZK6S" strategy="afterInteractive" />
+            <Script id="ga-init" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XZM1G5ZK6S');`}</Script>
+          </>
+        )}
       </body>
     </html>
   );

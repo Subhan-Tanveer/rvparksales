@@ -6,7 +6,8 @@ export default function ContactForm({ listing = '' }) {
 
   async function onSubmit(e) {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const fd = new FormData(form);
     setState({ status: 'sending', message: '' });
     try {
       const res = await fetch('/api/contact/', {
@@ -17,29 +18,28 @@ export default function ContactForm({ listing = '' }) {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Something went wrong. Please call or email us instead.');
       setState({ status: 'done', message: 'Thank you! We received your message and will be in touch shortly.' });
-      e.currentTarget.reset();
+      form.reset();
     } catch (err) {
       setState({ status: 'error', message: err.message });
     }
   }
 
-  const field = { padding: 13, borderRadius: 10, border: '1px solid var(--line)', font: '500 1rem var(--font-body)', width: '100%' };
   return (
-    <form onSubmit={onSubmit} style={{ display: 'grid', gap: 12 }}>
-      <label>I am a…
-        <select name="role" style={field} defaultValue="Buyer">
+    <form onSubmit={onSubmit}>
+      <label className="field">I am a…
+        <select name="role" defaultValue="Buyer">
           <option>Buyer</option><option>Seller</option><option>Broker</option><option>RV park owner</option><option>Other</option>
         </select>
       </label>
-      <label>Name *<input name="name" required style={field} /></label>
-      <label>Email *<input name="email" type="email" required style={field} /></label>
-      <label>Phone<input name="phone" type="tel" style={field} /></label>
-      <label>Park or listing (optional)<input name="listing" defaultValue={listing} style={field} /></label>
-      <label>How can we help? *<textarea name="message" rows={5} required style={field} /></label>
+      <label className="field">Name *<input name="name" required /></label>
+      <label className="field">Email *<input name="email" type="email" required /></label>
+      <label className="field">Phone<input name="phone" type="tel" /></label>
+      <label className="field">Park or listing (optional)<input name="listing" defaultValue={listing} /></label>
+      <label className="field">How can we help? *<textarea name="message" rows={5} required /></label>
       {/* Honeypot: real visitors never see or fill this; bots do. */}
       <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-9999px' }} />
-      <button className="btn btn-primary" type="submit" disabled={state.status === 'sending'}>{state.status === 'sending' ? 'Sending…' : 'Send Message'}</button>
-      {state.message && <p role="status" style={{ color: state.status === 'done' ? 'var(--green-dark)' : '#b3261e', fontWeight: 600, margin: 0 }}>{state.message}</p>}
+      <button className="btn" type="submit" disabled={state.status === 'sending'}>{state.status === 'sending' ? 'Sending…' : 'Send Message'}</button>
+      {state.message && <p role="status" style={{ color: state.status === 'done' ? '#0f7a43' : '#b3261e', fontWeight: 500, marginTop: 14 }}>{state.message}</p>}
     </form>
   );
 }

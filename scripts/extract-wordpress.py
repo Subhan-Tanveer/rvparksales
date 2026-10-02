@@ -76,6 +76,13 @@ for it in items:
     m, t = metas(it), terms(it)
     wp_status = g(it, 'wp:status')
     ids = php_int_list(m.get('images'))
+    addr_raw = m.get('address') or ''
+    def addr_num(key):
+        mm = re.search(r's:%d:"%s";d:(-?[0-9.]+)' % (len(key), key), addr_raw)
+        return float(mm.group(1)) if mm else None
+    def addr_str(key):
+        mm = re.search(r's:%d:"%s";s:\d+:"(.*?)";' % (len(key), key), addr_raw)
+        return html.unescape(mm.group(1)) if mm else None
     listings.append({
         'wpId': int(g(it, 'wp:post_id')),
         'slug': g(it, 'wp:post_name'),
@@ -90,7 +97,11 @@ for it in items:
         'sites': num(m.get('number_of_sites')),
         'acres': num(m.get('acres')),
         'roomToExpand': m.get('room_to_expand') or None,
-        'address': m.get('address_string') or m.get('address') or None,
+        'address': m.get('address_string') or addr_str('address') or None,
+        'lat': addr_num('lat'),
+        'lng': addr_num('lng'),
+        'city': addr_str('city') or addr_str('name'),
+        'stateShort': addr_str('state_short'),
         'propertyId': m.get('property_id') or None,
         'brokerName': m.get('broker_name') or None,
         'highlights': html.unescape(m.get('investment_highlights', '')) or None,
