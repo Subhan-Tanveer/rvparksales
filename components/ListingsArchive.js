@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import LocationInput from '@/components/LocationInput';
+import Select from '@/components/fx/Select';
 import { PRICES, SITES } from '@/lib/search-options';
 import { loadGoogleMaps, geocode } from '@/components/googleMaps';
 
@@ -331,46 +332,31 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="12" cy="12" r="6.5" /><circle cx="12" cy="12" r="2" fill="currentColor" /><path d="M12 2v3.5M12 18.5V22M2 12h3.5M18.5 12H22" /></svg>
                 </button>
               </span>
-              <select value={radius} aria-label="Radius" onChange={(e) => { const r = Number(e.target.value); setRadius(r); if (center) applyLocation(locText, r); }}>
-                {RADII.map((r) => <option key={r} value={r}>{r} mi</option>)}
-              </select>
+              <Select value={String(radius)} label="Radius" className="xsel-radius" onChange={(v) => { const r = Number(v); setRadius(r); if (center) applyLocation(locText, r); }} options={RADII.map((r) => [String(r), `${r} mi`])} />
             </div>
             {locBusy && <small>Finding location…</small>}
           </div>
           <div className="facet">
             <Label onReset={() => set({ _listing_category: '' })}>Category</Label>
-            <select value={category} aria-label="Any category" onChange={(e) => set({ _listing_category: e.target.value })}>
-              <option value="">Any category</option>
-              {opts.category.map((k) => <option key={k} value={k}>{CATEGORIES[k]}</option>)}
-            </select>
+            <Select value={category} label="Category" onChange={(v) => set({ _listing_category: v })} options={[['', 'Any category'], ...opts.category.map((k) => [k, CATEGORIES[k]])]} />
           </div>
           {!fixedState && (
             <div className="facet">
               <Label onReset={() => set({ _listing_state: '' })}>State</Label>
-              <select value={stateSlug} aria-label="Any state" onChange={(e) => set({ _listing_state: e.target.value })}>
-                <option value="">Any state</option>
-                {opts.state.map((s) => <option key={s} value={slugify(s)}>{s} RV Parks and Campgrounds</option>)}
-              </select>
+              <Select value={stateSlug} label="State" onChange={(v) => set({ _listing_state: v })} options={[['', 'Any state'], ...opts.state.map((s) => [slugify(s), s])]} />
             </div>
           )}
           <div className="facet">
             <Label onReset={() => set({ _listing_price: '' })}>Price</Label>
-            <select value={String(maxPrice || '')} aria-label="Maximum price" onChange={(e) => set({ _listing_price: e.target.value })}>
-              {PRICES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
-            </select>
+            <Select value={String(maxPrice || '')} label="Maximum price" onChange={(v) => set({ _listing_price: v })} options={PRICES} />
           </div>
           <div className="facet">
             <Label onReset={() => set({ _listing_sites: '' })}>Number of Sites</Label>
-            <select value={String(minSites || '')} aria-label="Minimum number of sites" onChange={(e) => set({ _listing_sites: e.target.value })}>
-              {SITES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
-            </select>
+            <Select value={String(minSites || '')} label="Minimum number of sites" onChange={(v) => set({ _listing_sites: v })} options={SITES} />
           </div>
           <div className="facet">
             <Label onReset={() => set({ _listing_status: '' })}>Status</Label>
-            <select value={status} aria-label="Status" onChange={(e) => set({ _listing_status: e.target.value })}>
-              <option value="">Any status</option>
-              {opts.status.map((k) => <option key={k} value={k}>{STATUSES[k]}</option>)}
-            </select>
+            <Select value={status} label="Status" onChange={(v) => set({ _listing_status: v })} options={[['', 'Any status'], ...opts.status.map((k) => [k, STATUSES[k]])]} />
           </div>
           <div style={{ height: 27 }} />
           <div className="filters-btns">

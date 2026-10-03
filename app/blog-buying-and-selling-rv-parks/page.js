@@ -14,7 +14,7 @@ export default function BlogIndex() {
   return (
     <>
       <PageBand title="The RV Park Blog" kicker="Resources" sub="Buying, selling, financing and growing RV parks: practical insights from the RVParkSales team." crumbs={[{ label: 'Blog' }]} />
-      <BlogList items={all.slice(0, PER_PAGE)} page={1} pages={Math.ceil(all.length / PER_PAGE)} base="/blog-buying-and-selling-rv-parks/" searchable />
+      <BlogList items={all.slice(0, PER_PAGE)} page={1} pages={Math.ceil(all.length / PER_PAGE)} base="/blog-buying-and-selling-rv-parks/" searchable lead />
     </>
   );
 }

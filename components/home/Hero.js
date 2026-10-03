@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import LocationInput from '@/components/LocationInput';
 import Split from '@/components/fx/Split';
+import Select from '@/components/fx/Select';
 import onReveal from '@/components/fx/onReveal';
 import { geocode } from '@/components/googleMaps';
 import { CATEGORIES, PRICES } from '@/lib/search-options';
@@ -95,19 +96,14 @@ export default function Hero({ stats }) {
             <span className="hs-label">Location</span>
             <LocationInput value={loc} onChange={(v) => { setLoc(v); setPlace(null); }} onPick={(pl) => { setLoc(pl.label); setPlace(pl); }} placeholder="City, state or ZIP" />
           </div>
-          <label className="hs-field">
+          <div className="hs-field">
             <span className="hs-label">Property type</span>
-            <select name="category" defaultValue="">
-              <option value="">All property types</option>
-              {Object.entries(CATEGORIES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-            </select>
-          </label>
-          <label className="hs-field">
+            <Select name="category" label="Property type" variant="dark" options={[['', 'All property types'], ...Object.entries(CATEGORIES)]} />
+          </div>
+          <div className="hs-field">
             <span className="hs-label">Price</span>
-            <select name="price" defaultValue="">
-              {PRICES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
-            </select>
-          </label>
+            <Select name="price" label="Price" variant="dark" options={PRICES} />
+          </div>
           <button type="submit" className="btn hs-go" aria-label="Search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L21 21" /></svg>
             <span>Search</span>

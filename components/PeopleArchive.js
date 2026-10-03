@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import Select from '@/components/fx/Select';
 
 // Brokers and developers share this layout (as on the old site): Search and
 // State filters on the left, a "Showing 1 - N of N results" line and a grid of
@@ -24,10 +25,7 @@ export default function PeopleArchive({ people, basePath }) {
         </div>
         <div className="facet">
           <h3 className="facet-label">State<span className="reset"><a role="button" tabIndex={0} onClick={() => setState('')}>Reset</a></span></h3>
-          <select value={state} onChange={(e) => setState(e.target.value)} aria-label="State">
-            <option value="">Any state</option>
-            {states.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <Select value={state} label="State" onChange={setState} options={[['', 'Any state'], ...states.map((s) => [s, s])]} />
         </div>
       </aside>
       <div>

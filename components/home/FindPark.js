@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LocationInput from '@/components/LocationInput';
+import Select from '@/components/fx/Select';
 import { geocode } from '@/components/googleMaps';
 import { CATEGORIES, PRICES, SITES } from '@/lib/search-options';
 
@@ -32,28 +33,22 @@ export default function FindPark({ states }) {
         <span className="hs-label">Location</span>
         <LocationInput value={loc} onChange={(v) => { setLoc(v); setPlace(null); }} onPick={(pl) => { setLoc(pl.label); setPlace(pl); }} placeholder="City, state or ZIP (100-mile radius)" />
       </div>
-      <label className="fp-field">
+      <div className="fp-field">
         <span className="hs-label">State</span>
-        <select name="state" defaultValue="">
-          <option value="">Any state</option>
-          {states.map((s) => <option key={s} value={slugify(s)}>{s}</option>)}
-        </select>
-      </label>
-      <label className="fp-field">
+        <Select name="state" label="State" options={[['', 'Any state'], ...states.map((s) => [slugify(s), s])]} />
+      </div>
+      <div className="fp-field">
         <span className="hs-label">Price</span>
-        <select name="price" defaultValue="">{PRICES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select>
-      </label>
-      <label className="fp-field">
+        <Select name="price" label="Price" options={PRICES} />
+      </div>
+      <div className="fp-field">
         <span className="hs-label">Number of sites</span>
-        <select name="sites" defaultValue="">{SITES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select>
-      </label>
-      <label className="fp-field">
+        <Select name="sites" label="Number of sites" options={[['', 'Any size'], ...SITES.slice(1)]} />
+      </div>
+      <div className="fp-field">
         <span className="hs-label">Property type</span>
-        <select name="category" defaultValue="">
-          <option value="">All property types</option>
-          {Object.entries(CATEGORIES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-        </select>
-      </label>
+        <Select name="category" label="Property type" options={[['', 'All types'], ...Object.entries(CATEGORIES)]} />
+      </div>
       <button type="submit" className="btn btn-lg fp-go">Search RV Parks</button>
     </form>
   );

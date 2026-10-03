@@ -10,7 +10,7 @@ export default function BlogSearch({ all, children }) {
   const words = q.split(/\s+/);
   const hits = all.filter((p) => words.every((w) => p.text.includes(w)));
   return (
-    <div className="blog-list">
+    <div className="blog-cards">
       <p className="search-note">Search results for “{sp.get('s')}”: {hits.length} {hits.length === 1 ? 'post' : 'posts'}</p>
       {hits.map((p) => <PostCard key={p.slug} p={p} />)}
     </div>
