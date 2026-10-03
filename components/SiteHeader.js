@@ -61,6 +61,32 @@ export default function SiteHeader() {
           <Link href="/" className="logo" aria-label="RVParkSales.com home">
             <img src="/images/site/RV-Parks-FF-02.webp" alt="RV Park Sales" width="360" height="167" />
           </Link>
+          {/* Large screens: all links in a row, sub-menus open on hover/focus. */}
+          <nav className="nav-desk" aria-label="Main">
+            <ul>
+              {MENU.map((item) => (
+                <li key={item.label} className={item.sub ? 'has-drop' : ''}>
+                  <Link href={item.href} className={isActive(item.href) ? 'active' : ''} aria-haspopup={item.sub ? 'true' : undefined}>
+                    {item.label}{item.sub && <span className="chev" aria-hidden="true" />}
+                  </Link>
+                  {item.sub && (
+                    <ul className="drop">
+                      {item.sub.map((s) => (
+                        <li key={s.label}>
+                          {s.external
+                            ? <a href={s.href} target="_blank" rel="noopener">{s.label}</a>
+                            : s.popup
+                              ? <a href={s.href} className={s.popup}>{s.label}</a>
+                              : <Link href={s.href}>{s.label}</Link>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
+          {/* Phones and tablets: MENU button with the slide-in panel. */}
           <button type="button" className="menu-ctl" aria-expanded={open} aria-controls="site-menu" onClick={() => setOpen(!open)}>
             <span>Menu</span><span className="burger"><i /></span>
           </button>
