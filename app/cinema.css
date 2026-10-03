@@ -806,3 +806,14 @@ body { overflow: visible !important; }
   .arch-map { position: sticky !important; top: 72px !important; height: calc(100vh - 72px) !important; align-self: start; }
 }
 .l-main, .l-footer { overflow-x: clip; }
+
+/* preloader on phones: centred, smaller, nothing wrapping or cut off */
+@media (max-width: 700px) {
+  .preloader { gap: 14px; padding: 0 24px; text-align: center; }
+  .pl-logo { width: 150px; }
+  .pl-tag { font-size: .62rem; letter-spacing: .2em; }
+  .pl-bar { width: 60vw; }
+  .pl-num { right: 0; left: 0; bottom: 6vh; text-align: center; font-size: 30vw; -webkit-text-stroke-width: 1px; }
+  .ct-logo { width: 130px; }
+  .ct-label { font-size: 11vw; }
+}
