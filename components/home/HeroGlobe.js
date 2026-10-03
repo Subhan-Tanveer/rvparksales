@@ -22,10 +22,11 @@ export default function HeroGlobe({ points }) {
       const center = toPhi(-97);
       let phi = center - 0.55; let offset = 0; let t = 0;
       globe = createGlobe(c, {
+        // cobe multiplies width by devicePixelRatio itself; cap it to keep the GPU load light.
         devicePixelRatio: Math.min(2, window.devicePixelRatio || 1),
-        width: width * 2, height: width * 2,
+        width, height: width,
         phi, theta: 0.42, dark: 1, diffuse: 1.4, scale: 1.02,
-        mapSamples: 22000, mapBrightness: 5.5, mapBaseBrightness: 0.04,
+        mapSamples: 16000, mapBrightness: 5.5, mapBaseBrightness: 0.04,
         baseColor: [0.28, 0.2, 0.48], markerColor: [0.23, 0.73, 0.93], glowColor: [0.42, 0.3, 0.82],
         markers: [
           ...points.map((p) => ({ location: [p.lat, p.lng], size: 0.045 })),
@@ -35,8 +36,13 @@ export default function HeroGlobe({ points }) {
         arcColor: [0.23, 0.73, 0.93], arcWidth: 0.6, arcHeight: 0.25,
       });
       // cobe v2: we drive the animation ourselves with globe.update().
+      // Only draw while the globe is on screen.
+      let visible = true;
+      const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; });
+      io.observe(c);
       const frame = () => {
-        if (cancelled) return;
+        if (cancelled) { io.disconnect(); return; }
+        if (!visible) { raf = requestAnimationFrame(frame); return; }
         if (!drag.current?.active) {
           t += reduce ? 0 : 0.0035;
           // Swing gently back and forth over the USA instead of spinning the whole Earth.
@@ -44,7 +50,7 @@ export default function HeroGlobe({ points }) {
         }
         const w = size();
         const patch = { phi: phi + offset };
-        if (w !== width) { width = w; patch.width = w * 2; patch.height = w * 2; }
+        if (w !== width) { width = w; patch.width = w; patch.height = w; }
         globe.update(patch);
         raf = requestAnimationFrame(frame);
       };
