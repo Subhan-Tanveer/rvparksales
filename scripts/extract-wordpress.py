@@ -61,6 +61,12 @@ def thumb(m):
     tid = m.get('_thumbnail_id')
     return media.get(int(tid), {}).get('url') if tid and tid.isdigit() else None
 
+def media_url(v):
+    v = (v or '').strip()
+    if v.isdigit():
+        return media.get(int(v), {}).get('url')
+    return v if v.startswith('http') else None
+
 # ---------- listings ----------
 def num(v):
     try:
@@ -104,6 +110,14 @@ for it in items:
         'stateShort': addr_str('state_short'),
         'propertyId': m.get('property_id') or None,
         'brokerName': m.get('broker_name') or None,
+        # "Talk with Broker" box on the old listing page (seller_* fields).
+        'sellerName': m.get('seller_name') or None,
+        'sellerImage': media_url(m.get('seller_image')) or media_url(m.get('broker_image')),
+        'lotSize': m.get('lot_size') or None,
+        'hoaFee': m.get('hoa_fee') or None,
+        'fullHookups': m.get('full_hookups') or None,
+        'pavedParking': m.get('paved_parking_surface') or None,
+        'park55': m.get('55_park') or None,
         'highlights': html.unescape(m.get('investment_highlights', '')) or None,
         'summary': html.unescape(m.get('executive_summary', '')) or None,
         'hasOfferingMemorandum': bool(m.get('offering_memorandum')),
@@ -139,6 +153,19 @@ def people(kind):
 
 brokers, developers = people('broker'), people('developer')
 
+# ---------- blog categories & author display names ----------
+categories = []
+for blk in re.findall(r'<wp:category>(.*?)</wp:category>', s, re.S):
+    categories.append({
+        'slug': g(blk, 'wp:category_nicename'),
+        'name': html.unescape(g(blk, 'wp:cat_name')),
+        'parent': g(blk, 'wp:category_parent') or None,
+        'descriptionHtml': g(blk, 'wp:category_description') or '',
+    })
+# Only the display name is kept (no emails or logins in the output).
+authors = {g(b, 'wp:author_login'): html.unescape(g(b, 'wp:author_display_name'))
+           for b in re.findall(r'<wp:author>(.*?)</wp:author>', s, re.S)}
+
 # ---------- posts & pages ----------
 def content_items(kind):
     out = []
@@ -153,6 +180,8 @@ def content_items(kind):
             'title': html.unescape(g(it, 'title')),
             'date': g(it, 'wp:post_date'),
             'categories': [c['name'] for c in t.get('category', [])],
+            'categorySlugs': [c['slug'] for c in t.get('category', [])],
+            'author': authors.get(g(it, 'dc:creator')),
             'featuredImage': thumb(m),
             'excerpt': html.unescape(g(it, 'excerpt:encoded')) or None,
             'contentHtml': g(it, 'content:encoded'),
@@ -196,6 +225,7 @@ dump('listings.json', listings)
 dump('brokers.json', brokers)
 dump('developers.json', developers)
 dump('posts.json', posts)
+dump('categories.json', categories)
 dump('pages.json', pages)
 dump('testimonials.json', testimonials)
 dump('menu.json', menu)

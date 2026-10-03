@@ -1,27 +1,28 @@
+import PageBand from '@/components/PageBand';
+import ReviewsGrid from '@/components/ReviewsGrid';
 import { testimonials } from '@/lib/content';
 
 export const metadata = {
-  title: 'Reviews',
+  title: { absolute: 'Reviews - RV Park Sales - Pick the best RV Park Broker' },
   description: 'What RV park buyers, sellers and brokers say about working with RVParkSales.com and Marie Hansen.',
   alternates: { canonical: '/reviews/' },
 };
 
 export default function ReviewsPage() {
+  // Newest first, like the old reviews grid (made-up reviews were not imported).
+  const items = [...testimonials()].reverse();
   return (
-    <section className="l-section">
-      <div className="l-section-h page-title-wrap">
-        <h1 className="page-title">Reviews</h1>
-        <div className="grid-3" style={{ marginTop: 30 }}>
-          {testimonials().map((t) => (
-            <div key={t.name + t.date} className="testi">
-              <p style={{ margin: 0 }}>{t.quote}</p>
-              <div className="quote-name" style={{ marginLeft: 0 }}>{t.name.split(',')[0]}</div>
-              <div className="quote-role" style={{ marginLeft: 0 }}>{t.name.includes(',') ? t.name.split(',').slice(1).join(',').trim() : 'RV Park Client'}</div>
-            </div>
-          ))}
+    <>
+      <PageBand title="Reviews" />
+      <section className="l-section s-medium-72">
+        <div className="l-section-h">
+          <div className="center">
+            <a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn" target="_blank" rel="noopener">Leave A Review</a>
+          </div>
+          <hr className="hr-line" style={{ height: 27 }} />
+          <ReviewsGrid items={items} />
         </div>
-        <p style={{ marginTop: 34 }}><a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn" target="_blank" rel="noopener">Leave A Review</a></p>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

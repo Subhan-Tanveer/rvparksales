@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import ListingsArchive from '@/components/ListingsArchive';
-import { allListings, statesWithListings } from '@/lib/content';
+import { allListings } from '@/lib/content';
 
 export const metadata = {
   title: 'RV Parks and Campgrounds For Sale',
@@ -10,7 +10,7 @@ export const metadata = {
 
 function leanListings() {
   return allListings().map((l) => ({
-    slug: l.slug, title: l.title, status: l.status, category: l.category, state: l.state,
+    slug: l.slug, title: l.title, status: l.status, category: l.category, state: l.state, city: l.city,
     priceUsd: l.priceUsd, featuredImage: l.featuredImage, address: l.address, lat: l.lat, lng: l.lng,
   }));
 }
@@ -18,7 +18,7 @@ function leanListings() {
 export default function ListingsPage() {
   return (
     <Suspense fallback={<p style={{ padding: 40 }}>Loading listings…</p>}>
-      <ListingsArchive listings={leanListings()} states={statesWithListings()} />
+      <ListingsArchive listings={leanListings()} />
     </Suspense>
   );
 }

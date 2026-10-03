@@ -9,9 +9,10 @@ export const metadata = {
 
 export default function DevelopersPage() {
   return (
-    <section className="l-section">
-      <div className="l-section-h page-title-wrap">
-        <h1 className="page-title">Developers</h1>
+    <section className="l-section s-medium-72">
+      <div className="l-section-h">
+        <h1 style={{ margin: 0 }}>Developers</h1>
+        <div style={{ height: 27 }} />
         <PeopleArchive people={developers()} basePath="developer" />
       </div>
     </section>

@@ -25,8 +25,8 @@ const MENU = [
     label: 'Contact', href: '/contact/',
     sub: [
       { label: 'Send a Message', href: '/contact/' },
-      { label: 'Buyers', href: '/contact/#buyers' },
-      { label: 'Sellers', href: '/contact/#sellers' },
+      { label: 'Buyers', href: '#', popup: 'buyer-consultation' },
+      { label: 'Sellers', href: '/contact/#sellers', popup: 'seller-consultation' },
       { label: 'Schedule a Free Consultation', href: 'https://calendly.com/marie-rvparksales/30min', external: true },
     ],
   },
@@ -73,16 +73,21 @@ export default function SiteHeader() {
             <li key={item.label}>
               {item.sub ? (
                 <>
-                  <button type="button" className="sub-toggle" aria-expanded={expanded === item.label} onClick={() => setExpanded(expanded === item.label ? null : item.label)}>
-                    <span>{item.label}</span><span className="chev" />
-                  </button>
+                  <div className="has-sub">
+                    <Link href={item.href} className={isActive(item.href) ? 'active' : ''}>{item.label}</Link>
+                    <button type="button" className="sub-toggle" aria-label={`${item.label} Menu`} aria-expanded={expanded === item.label} onClick={() => setExpanded(expanded === item.label ? null : item.label)}>
+                      <span className="chev" />
+                    </button>
+                  </div>
                   {expanded === item.label && (
                     <ul className="sub">
                       {item.sub.map((s) => (
                         <li key={s.label}>
                           {s.external
                             ? <a href={s.href} target="_blank" rel="noopener">{s.label}</a>
-                            : <Link href={s.href}>{s.label}</Link>}
+                            : s.popup
+                              ? <a href={s.href} className={s.popup} onClick={() => setOpen(false)}>{s.label}</a>
+                              : <Link href={s.href}>{s.label}</Link>}
                         </li>
                       ))}
                     </ul>

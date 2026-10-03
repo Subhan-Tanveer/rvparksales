@@ -1,30 +1,33 @@
 import Link from 'next/link';
-import { allListings, brokers, posts } from '@/lib/content';
+import PageBand from '@/components/PageBand';
+import { allListings, pages, posts, categories } from '@/lib/content';
 
-export const metadata = { title: 'Sitemap', alternates: { canonical: '/sitemap/' } };
+export const metadata = {
+  title: { absolute: 'Sitemap - RV Park Sales - RV Campgrounds for Sale' },
+  alternates: { canonical: '/sitemap/' },
+};
 
+// Same three lists as the old HTML sitemap: Pages, Posts (by category), Listings.
 export default function SitemapPage() {
+  const pageList = [...pages()].sort((a, b) => b.wpId - a.wpId);
   return (
-    <section className="l-section">
-      <div className="l-section-h page-title-wrap">
-        <h1 className="page-title">Sitemap</h1>
-        <div className="cols-2" style={{ marginTop: 24 }}>
-          <div>
-            <h3>Pages</h3>
-            <ul className="prose">
-              {[['/', 'Home'], ['/about-selling-an-rv-park/', 'About Us'], ['/listings/?_listing_status=for-sale', 'Explore Parks'], ['/brokers/', 'RV Park Brokers'], ['/developers/', 'RV Park Developers'], ['/reviews/', 'Reviews'], ['/faq/', 'FAQ'], ['/contact/', 'Contact'], ['/blog-buying-and-selling-rv-parks/', 'Blog'], ['/sell-my-rv-park/', 'Sell My RV Park'], ['/privacy-policy-tos/', 'Privacy Policy and Terms of Service']].map(([h, t]) => <li key={h}><Link href={h}>{t}</Link></li>)}
-            </ul>
-            <h3>Brokers</h3>
-            <ul className="prose">{brokers().map((b) => <li key={b.slug}><Link href={`/broker/${b.slug}/`}>{b.name}</Link></li>)}</ul>
-          </div>
-          <div>
-            <h3>Blog</h3>
-            <ul className="prose">{posts().map((p) => <li key={p.slug}><Link href={`/${p.slug}/`}>{p.title}</Link></li>)}</ul>
-            <h3>Listings</h3>
-            <ul className="prose">{allListings().map((l) => <li key={l.slug}><Link href={`/listing/${l.slug}/`}>{l.title}</Link></li>)}</ul>
-          </div>
+    <>
+      <PageBand title="Sitemap" />
+      <section className="l-section s-medium-72">
+        <div className="l-section-h prose sitemap">
+          <h2>Pages</h2>
+          <ul>{pageList.map((p) => <li key={p.slug}><Link href={p.slug === 'home' ? '/' : `/${p.slug}/`}>{p.title}</Link></li>)}</ul>
+          <h2>Posts</h2>
+          {categories().filter((c) => c.directCount > 0).map((c) => (
+            <div key={c.slug}>
+              <h3><Link href={c.path}>{c.name}</Link></h3>
+              <ul>{posts().filter((p) => (p.categorySlugs || []).includes(c.slug)).map((p) => <li key={p.slug}><Link href={`/${p.slug}/`}>{p.title}</Link></li>)}</ul>
+            </div>
+          ))}
+          <h2>Listings</h2>
+          <ul>{allListings().map((l) => <li key={l.slug}><Link href={`/listing/${l.slug}/`}>{l.title}</Link></li>)}</ul>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

@@ -1,0 +1,31 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import PageBand from '@/components/PageBand';
+import FaqAccordion from '@/components/FaqAccordion';
+import { SITE } from '@/lib/content';
+
+export const metadata = {
+  title: 'FAQ',
+  description: 'Answers to common questions about RVParkSales.com, selling an RV park or campground, broker listings and advertising plans.',
+  alternates: { canonical: '/faq/' },
+};
+
+export default function FaqPage() {
+  const items = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'faq.json'), 'utf8'));
+  const jsonLd = {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: items.filter((i) => i.a).map((i) => ({ '@type': 'Question', name: i.q, acceptedAnswer: { '@type': 'Answer', text: i.a.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim() } })),
+  };
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <PageBand title="FAQ" />
+      <section className="l-section s-medium-72">
+        <div className="l-section-h">
+          <h2 style={{ margin: '0 0 27px' }}>Frequently Asked Questions</h2>
+          <FaqAccordion items={items} adsUrl={SITE.ads} />
+        </div>
+      </section>
+    </>
+  );
+}

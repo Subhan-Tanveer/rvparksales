@@ -3,6 +3,7 @@ import Script from 'next/script';
 import { Rubik, Montserrat } from 'next/font/google';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
+import ConsultationPopup from '@/components/ConsultationPopup';
 import { SITE } from '@/lib/content';
 
 // Same two fonts as the current site: Rubik for text and the menu,
@@ -30,6 +31,7 @@ export default function RootLayout({ children }) {
         <SiteHeader />
         <main className="l-main">{children}</main>
         <SiteFooter />
+        <ConsultationPopup />
         {live && (
           <>
             <Script src="https://widgets.leadconnectorhq.com/loader.js" data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js" data-widget-id="69ef73357ae751e214e5f227" strategy="lazyOnload" />

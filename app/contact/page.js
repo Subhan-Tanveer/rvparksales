@@ -1,33 +1,38 @@
-import ContactForm from '@/components/ContactForm';
-import { SITE } from '@/lib/content';
+import PageBand from '@/components/PageBand';
+import { GfForm } from '@/components/GfForm';
 
 export const metadata = {
-  title: 'Contact',
-  description: 'Contact RV Park Sales to buy or sell an RV park or campground, or schedule a free consultation.',
+  title: { absolute: 'Contact - RV Park Sales - RV Campground - Florida' },
+  description: 'Contact RVParkSales.com about buying or selling an RV park or campground. Call 850-832-0022 or send a message.',
   alternates: { canonical: '/contact/' },
 };
 
-export default async function ContactPage({ searchParams }) {
-  const sp = await searchParams;
-  const listing = typeof sp?.listing === 'string' ? sp.listing.slice(0, 200) : '';
+// Same form as the old Contact page (Gravity Forms #1), with the photo column on the right.
+const FIELDS = [
+  { key: 'name', type: 'name', label: 'Name', required: true },
+  { key: 'email', type: 'email2', label: 'Email', required: true, half: true },
+  { key: 'phone', type: 'phone', label: 'Phone', half: true },
+  { key: 'describe', type: 'select', label: 'What best describes you?', required: true, options: ['Agent', 'Broker', 'Lender', 'Property Owner', 'Other'] },
+  { key: 'buysell', type: 'select', label: 'Are you looking to buy or sell?', required: true, options: ['Buy', 'Sell', 'Other'], placeholder: false },
+  { key: 'park', type: 'text', label: 'Park Name' },
+  { key: 'region', type: 'text', label: 'Region/State', required: true },
+  { key: 'message', type: 'textarea', label: 'Message/Comments', required: true },
+];
+
+export default function ContactPage() {
   return (
-    <section className="l-section">
-      <div className="l-section-h page-title-wrap">
-        <h1 className="page-title">Contact</h1>
-        <div className="cols-2" style={{ marginTop: 30, alignItems: 'start' }}>
-          <div id="buyers">
-            <p>Buying, selling or just exploring? Send us a message and we will be in touch, or schedule a free consultation.</p>
-            <ContactForm listing={listing} />
+    <>
+      <PageBand title="Contact" image="/images/site/RV-PARKS.webp" />
+      <section className="l-section" id="sellers">
+        <div className="l-section-h cols-2-1">
+          <div>
+            <div style={{ height: 54 }} />
+            <GfForm form="Contact" fields={FIELDS} />
+            <div style={{ height: 54 }} />
           </div>
-          <div id="sellers" style={{ background: 'var(--bg-alt)', padding: 30 }}>
-            <h3>Prefer to talk?</h3>
-            <p><strong>Phone:</strong> <a href={SITE.phoneHref}>{SITE.phone}</a></p>
-            <p><strong>Email:</strong> <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
-            <p>Based in Panama City Beach, Florida, serving the entire USA.</p>
-            <a href={SITE.calendly} className="btn" target="_blank" rel="noopener">Schedule a Free Consultation</a>
-          </div>
+          <div className="side-photo" style={{ backgroundImage: 'url(/images/site/rv-parks-3.jpg)' }} />
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

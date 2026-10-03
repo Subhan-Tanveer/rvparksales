@@ -26,9 +26,14 @@ export async function POST(request) {
   const role = String(body.role || '').trim().slice(0, 40);
   const listing = String(body.listing || '').trim().slice(0, 200);
   const message = String(body.message || '').trim().slice(0, 3000);
+  // Consultation popups (buyer / seller) send their form name plus extra fields.
+  const form = String(body.form || '').trim().slice(0, 80);
+  const details = body.details && typeof body.details === 'object'
+    ? Object.entries(body.details).slice(0, 20).map(([k, v]) => [String(k).slice(0, 60), String(v ?? '').trim().slice(0, 300)]).filter(([, v]) => v)
+    : [];
 
-  if (!name || !message || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return Response.json({ error: 'Please enter your name, a valid email and a message.' }, { status: 400 });
+  if (!name || (!message && !form) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return Response.json({ error: form ? 'Please fill in the required fields.' : 'Please enter your name, a valid email and a message.' }, { status: 400 });
   }
 
   const { GMAIL_USER, GMAIL_APP_PASSWORD } = process.env;
@@ -45,10 +50,10 @@ export async function POST(request) {
       from: `RVParkSales.com <${GMAIL_USER}>`,
       to: 'marie@rvparksales.com',
       replyTo: `${name} <${email}>`,
-      subject: `New website message from ${name}${listing ? ` about ${listing}` : ''}`,
-      html: `<h3>New message from rvparksales.com</h3>
-        <p><strong>Name:</strong> ${esc(name)}<br><strong>Email:</strong> ${esc(email)}<br><strong>Phone:</strong> ${esc(phone) || '—'}<br><strong>I am a:</strong> ${esc(role) || '—'}<br><strong>Listing:</strong> ${esc(listing) || '—'}</p>
-        <p style="white-space:pre-wrap">${esc(message)}</p>`,
+      subject: form ? `${form} request from ${name}` : `New website message from ${name}${listing ? ` about ${listing}` : ''}`,
+      html: `<h3>${form ? esc(form) + ' request' : 'New message'} from rvparksales.com</h3>
+        <p><strong>Name:</strong> ${esc(name)}<br><strong>Email:</strong> ${esc(email)}<br><strong>Phone:</strong> ${esc(phone) || '—'}<br><strong>I am a:</strong> ${esc(role) || '—'}${listing ? `<br><strong>Listing:</strong> ${esc(listing)}` : ''}${details.map(([k, v]) => `<br><strong>${esc(k)}:</strong> ${esc(v)}`).join('')}</p>
+        <p style="white-space:pre-wrap">${esc(message) || '—'}</p>`,
     });
     return Response.json({ ok: true });
   } catch (err) {

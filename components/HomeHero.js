@@ -1,23 +1,13 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import HeroSlides from '@/components/HeroSlides';
 
-// The home hero: six photos cross-fading every 7 seconds under a teal tint,
-// a Buyers / Sellers toggle, and the search row, as on the current site.
-const SLIDES = [
-  'rv-parks-3.jpg', 'Parks-for-sale.webp', '1956989740-scaled.jpg',
-  'RV-PARKS.webp', 'rv-parks-2.jpg', 'mobile-home-parks-1.jpg',
-];
-
-export default function HomeHero({ states }) {
+// The home hero: photo slider under a teal tint, a Buyers / Sellers toggle,
+// and the search row, as on the current site.
+export default function HomeHero() {
   const router = useRouter();
   const [tab, setTab] = useState('buyers');
-  const [slide, setSlide] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => setSlide((s) => (s + 1) % SLIDES.length), 7000);
-    return () => clearInterval(id);
-  }, []);
 
   function search(e) {
     e.preventDefault();
@@ -31,10 +21,7 @@ export default function HomeHero({ states }) {
 
   return (
     <section className="hero">
-      <div className="hero-slides" aria-hidden="true">
-        {SLIDES.map((f, i) => <div key={f} className={`slide ${i === slide ? 'on' : ''}`} style={{ backgroundImage: `url(/images/site/${f})` }} />)}
-      </div>
-      <div className="hero-overlay" />
+      <HeroSlides />
       <div className="hero-inner">
         <div className="tabs-pill" role="tablist">
           <button role="tab" aria-selected={tab === 'buyers'} className={tab === 'buyers' ? 'on' : ''} onClick={() => setTab('buyers')}>Buyers</button>
@@ -62,7 +49,7 @@ export default function HomeHero({ states }) {
             <div className="kicker">Looking to sell?</div>
             <h2>Have you decided it’s time to sell your RV Property?</h2>
             <div className="search-form">
-              <a className="btn" href="https://calendly.com/marie-rvparksales/30min" target="_blank" rel="noopener">Book a Consultation</a>
+              <button type="button" className="btn seller-consultation">Book a Consultation</button>
               <a className="btn" href="/listings/?_listing_status=sold">Search Sold Properties</a>
             </div>
           </>
