@@ -183,6 +183,7 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
       bar.querySelectorAll('button').forEach((b) => b.addEventListener('click', (e) => {
         e.preventDefault(); e.stopPropagation();
         k = (k + (b.classList.contains('next') ? 1 : -1) + grp.items.length) % grp.items.length;
+        busyUntil = Date.now() + 700; // the card may shift a little while it re-draws
         render();
       }));
       render();
@@ -193,11 +194,12 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
     // While the pointer is on the card, other pins underneath it are ignored.
     let closeTimer = null;
     let overCard = false;
+    let busyUntil = 0;
     const hold = () => clearTimeout(closeTimer);
     const later = (fn) => { clearTimeout(closeTimer); closeTimer = setTimeout(fn, 300); };
     const watch = (el, close) => {
       el.addEventListener('mouseenter', () => { overCard = true; hold(); });
-      el.addEventListener('mouseleave', () => { overCard = false; close(); });
+      el.addEventListener('mouseleave', () => { if (Date.now() < busyUntil) return; overCard = false; close(); });
     };
     (key ? loadGoogleMaps() : loadLeaflet()).then(() => {
       if (cancelled) return;
