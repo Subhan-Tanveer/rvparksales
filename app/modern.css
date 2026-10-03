@@ -215,3 +215,14 @@ section:has(.reviews-grid) { background: var(--bg-alt); }
 .f-social a { border-radius: 10px; transition: transform .2s ease, opacity .2s ease; }
 .f-social a:hover { transform: translateY(-3px); }
 .f-bar { background: linear-gradient(90deg, #2a1452, var(--purple) 50%, #1ea7d8); }
+
+/* phone fixes */
+@media (max-width: 1024px) { .arch { grid-template-columns: minmax(0, 1fr); } .arch-list { min-width: 0; } }
+@media (max-width: 700px) {
+  .post-nav { flex-direction: column; }
+  .post-nav a { max-width: none; width: 100%; box-sizing: border-box; }
+  .post-nav .to-prev { margin-left: 0; }
+  .l-row { flex-wrap: wrap; }
+  .l-row img, .l-row .noimg { width: 72px; height: 72px; }
+  .sell-stats { overflow: hidden; padding-bottom: 34px; }
+}
