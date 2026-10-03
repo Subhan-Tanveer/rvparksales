@@ -20,7 +20,7 @@
   .nav-ctas { display: flex; gap: 8px; margin-left: 14px; flex-shrink: 0; }
   .nav-ctas .btn-sm { padding: 12px 16px; font-size: .72rem; letter-spacing: .04em; }
 }
-@media (min-width: 1200px) and (max-width: 1365px) { .nav-ctas .btn-2 { display: none; } }
+@media (min-width: 1200px) and (max-width: 1599px) { .nav-ctas .btn-2 { display: none; } }
 
 /* ---------- hero ---------- */
 .h-hero { position: relative; overflow: hidden; color: #fff; background: radial-gradient(120% 120% at 80% 20%, #3a1d73 0%, var(--deep-2) 38%, var(--deep) 75%); padding: 70px 0 90px; min-height: calc(100vh - var(--header-h)); display: flex; align-items: center; }
@@ -37,7 +37,7 @@
 .h-kicker .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); animation: ping 2s infinite; }
 @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(59, 187, 237, .7); } 70% { box-shadow: 0 0 0 10px rgba(59, 187, 237, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 187, 237, 0); } }
 .h-title { color: #fff; font-size: clamp(44px, 6.2vw, 92px); line-height: .98; letter-spacing: -0.02em; text-transform: none; font-weight: 900; margin: 0 0 24px; perspective: 800px; }
-.h-title .w-wrap { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .06em; }
+.h-title .w-wrap { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .06em; margin-right: .22em; }
 .h-title .w { display: inline-block; }
 .h-title .w-wrap:nth-child(2n) .w { background: linear-gradient(90deg, #3bbbed, #a98bff); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .h-sub { font-size: 1.25rem; line-height: 1.5; color: rgba(255, 255, 255, .78); max-width: 560px; margin: 0 0 32px; }
