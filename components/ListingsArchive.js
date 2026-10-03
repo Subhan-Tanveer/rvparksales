@@ -2,6 +2,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import LocationInput from '@/components/LocationInput';
+import { loadGoogleMaps, geocode } from '@/components/googleMaps';
 
 // Same layout as the old listings page (FacetWP): a Filters button that slides
 // a filter panel in from the left, the listing cards underneath (24 a page),
@@ -34,11 +36,6 @@ function loadScript(src) {
     s.src = src; s.async = true; s.onload = resolve; s.onerror = reject;
     document.head.appendChild(s);
   });
-}
-function loadGoogle(key) {
-  if (window.google?.maps) return Promise.resolve();
-  window.__gmapsPromise ||= loadScript(`https://maps.googleapis.com/maps/api/js?key=${key}`);
-  return window.__gmapsPromise;
 }
 function loadLeaflet() {
   if (window.L) return Promise.resolve();
@@ -103,15 +100,16 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
   const rows = shown.slice((page - 1) * PER_PAGE, page * PER_PAGE);
   const filterCount = [status, category, !fixedState && stateSlug, loc].filter(Boolean).length;
 
+  const setCenter = ({ lat, lng, label }, r = radius) => set({ _listing_location: `${lat.toFixed(5)},${lng.toFixed(5)},${r},${encodeURIComponent(label)}`, q: '' });
+  const currentLabel = decodeURIComponent(loc.split(',').slice(3).join(','));
   async function applyLocation(text = locText, r = radius) {
     const t = text.trim();
     if (!t) { set({ _listing_location: '' }); return; }
+    if (center && t === currentLabel && r === center.r) return;
+    if (center && t === currentLabel) { setCenter({ lat: center.lat, lng: center.lng, label: t }, r); return; }
     setLocBusy(true);
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us,ca&q=${encodeURIComponent(t)}`, { headers: { Accept: 'application/json' } });
-      const [hit] = await res.json();
-      if (hit) set({ _listing_location: `${Number(hit.lat).toFixed(5)},${Number(hit.lon).toFixed(5)},${r},${encodeURIComponent(t)}`, q: '' });
-    } catch { /* keep current results */ }
+    const hit = await geocode(t);
+    if (hit) setCenter({ ...hit, label: t }, r);
     setLocBusy(false);
   }
   function locateMe() {
@@ -140,7 +138,7 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
     let cancelled = false;
     const pts = shown.filter((l) => l.lat && l.lng);
     const popup = (l) => `<div class="map-pop"><a href="/listing/${l.slug}/">${l.title.replace(/</g, '&lt;')}</a>${l.priceUsd ? `<div>$ ${money(l.priceUsd)}</div>` : ''}</div>`;
-    (key ? loadGoogle(key) : loadLeaflet()).then(() => {
+    (key ? loadGoogleMaps() : loadLeaflet()).then(() => {
       if (cancelled) return;
       if (key) {
         const g = window.google.maps;
@@ -236,8 +234,8 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
             <Label onReset={() => { setLocText(''); set({ _listing_location: '', q: '' }); }}>Location</Label>
             <div className="loc-row">
               <span className="loc-wrap">
-                <input value={locText} placeholder="Enter location" autoComplete="off" aria-label="Enter location"
-                  onChange={(e) => setLocText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') applyLocation(); }} onBlur={() => applyLocation()} />
+                <LocationInput value={locText} onChange={setLocText} onEnter={() => applyLocation()}
+                  onPick={(pl) => { setLocText(pl.label); setCenter(pl); }} />
                 <button type="button" className="locate-me" aria-label="Use my location" onClick={locateMe}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="12" cy="12" r="6.5" /><circle cx="12" cy="12" r="2" fill="currentColor" /><path d="M12 2v3.5M12 18.5V22M2 12h3.5M18.5 12H22" /></svg>
                 </button>
@@ -273,7 +271,7 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
           </div>
           <div style={{ height: 27 }} />
           <div className="filters-btns">
-            <button type="button" className="btn" onClick={() => setPanel(false)}>Search</button>
+            <button type="button" className="btn" onClick={async () => { await applyLocation(); setPanel(false); }}>Search</button>
             <button type="button" className="btn btn-2" onClick={resetAll}>Reset</button>
           </div>
         </div>

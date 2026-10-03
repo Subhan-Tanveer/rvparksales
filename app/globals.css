@@ -501,3 +501,8 @@ h1, h2, h3 { overflow-wrap: break-word; }
 @media (max-width: 640px) { .grid-3 { grid-template-columns: 1fr; } }
 .field { display: block; margin-bottom: 14px; font-size: .85rem; color: var(--heading); }
 .field input, .field select, .field textarea { display: block; width: 100%; margin-top: 4px; padding: 13px; border: 1px solid #d9deea; font-family: var(--font-body); font-size: 1rem; background: #fff; }
+
+/* Google place suggestions under the location boxes (above the Filters panel) */
+.pac-container { z-index: 10010 !important; font-family: var(--font-body); border-radius: 0; box-shadow: 0 6px 18px rgba(0, 0, 0, .15); }
+.pac-item { padding: 6px 12px; font-size: 14px; cursor: pointer; }
+.pac-item-query { font-size: 14px; color: var(--heading); }

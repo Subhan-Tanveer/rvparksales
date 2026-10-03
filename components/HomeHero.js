@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import HeroSlides from '@/components/HeroSlides';
+import LocationInput from '@/components/LocationInput';
+import { geocode } from '@/components/googleMaps';
 
 // The home hero: photo slider under a teal tint, a Buyers / Sellers toggle,
 // and the search row, as on the current site.
@@ -9,13 +11,20 @@ export default function HomeHero() {
   const router = useRouter();
   const [tab, setTab] = useState('buyers');
 
-  function search(e) {
+  const [loc, setLoc] = useState('');
+  const [place, setPlace] = useState(null);
+
+  // Same as the old FacetWP search: a chosen place becomes a 100-mile radius
+  // search (?_listing_location=lat,lng,radius,label) on the listings page.
+  async function search(e) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const p = new URLSearchParams({ _listing_status: 'for-sale' });
     if (fd.get('category')) p.set('_listing_category', fd.get('category'));
-    const loc = (fd.get('location') || '').toString().trim();
-    if (loc) p.set('q', loc);
+    const text = loc.trim();
+    const hit = text ? (place && place.label === text ? place : await geocode(text)) : null;
+    if (hit) p.set('_listing_location', `${hit.lat.toFixed(5)},${hit.lng.toFixed(5)},100,${encodeURIComponent(text)}`);
+    else if (text) p.set('q', text);
     router.push(`/listings/?${p.toString()}`);
   }
 
@@ -33,7 +42,7 @@ export default function HomeHero() {
             <h1 className="kicker">Are you looking to buy an RV Park or Campground?</h1>
             <h2>We have RV Parks and Campgrounds for sale in the USA. What RV Property Type Are You Interested In?</h2>
             <form className="search-form" onSubmit={search}>
-              <div className="fld"><input name="location" placeholder="Enter location" aria-label="Enter location" /></div>
+              <div className="fld"><LocationInput value={loc} onChange={(v) => { setLoc(v); setPlace(null); }} onPick={(pl) => { setLoc(pl.label); setPlace(pl); }} /></div>
               <div className="fld">
                 <select name="category" aria-label="Property type" defaultValue="rv-parks-campgrounds">
                   <option value="rv-parks-campgrounds">RV Parks/Campgrounds</option>
