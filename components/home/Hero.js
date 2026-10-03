@@ -2,39 +2,57 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import HeroGlobe from '@/components/home/HeroGlobe';
 import LocationInput from '@/components/LocationInput';
+import Split from '@/components/fx/Split';
+import onReveal from '@/components/fx/onReveal';
 import { geocode } from '@/components/googleMaps';
 import { CATEGORIES, PRICES } from '@/lib/search-options';
 
-// Home hero (Marie's new plan): "America's RV Park Marketplace — Buy. Sell.
-// Advertise. Grow." with the two main buttons, a quick park search, and the
-// 3D globe of every park for sale. Words rise in with a 3D flip on load.
-export default function Hero({ points, stats }) {
+// Home hero, full screen like the reference sites: real RV park photos play
+// like a film (slow push-in, crossfade every few seconds), the headline
+// "Buy. Sell. Advertise. Grow." rises letter by letter as the preloader opens,
+// with the two main buttons, a quick park search and live counts.
+const SLIDES = [
+  { src: '/images/site/rv-parks-3.jpg', label: 'Mountain lake RV resort' },
+  { src: '/images/site/rv-parks-2.jpg', label: 'Oceanfront RV park' },
+  { src: '/images/site/rv-parks-1.jpg', label: 'Forest campground' },
+  { src: '/images/site/1956989740-scaled.jpg', label: 'Shaded RV sites' },
+  { src: '/images/site/RV-PARKS.webp', label: 'Lakeside RV community' },
+];
+
+export default function Hero({ stats }) {
   const router = useRouter();
   const root = useRef(null);
   const [loc, setLoc] = useState('');
   const [place, setPlace] = useState(null);
+  const [slide, setSlide] = useState(0);
 
   useEffect(() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { root.current?.classList.add('in'); return undefined; }
-    let ctx;
-    import('gsap').then(({ gsap }) => {
-      if (!root.current) return;
-      root.current.classList.add('in');
+    const t = setInterval(() => setSlide((s) => (s + 1) % SLIDES.length), 5200);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return undefined;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { el.classList.add('ch-done'); return undefined; }
+    let ctx; let cancelled = false; let stop = () => {};
+    Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(([{ gsap }, { ScrollTrigger }]) => {
+      if (cancelled || !root.current) return;
+      gsap.registerPlugin(ScrollTrigger);
       ctx = gsap.context(() => {
-        const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
-        tl.from('.h-kicker', { y: 20, autoAlpha: 0, duration: 0.7 })
-          .from('.h-title .w', { yPercent: 110, rotateX: -80, autoAlpha: 0, duration: 1.1, stagger: 0.07, transformOrigin: '50% 100%' }, '-=0.3')
-          .from('.h-sub', { y: 24, autoAlpha: 0, duration: 0.8 }, '-=0.6')
-          .from('.h-ctas > *', { y: 24, autoAlpha: 0, duration: 0.7, stagger: 0.1 }, '-=0.5')
-          .from('.h-search', { y: 30, autoAlpha: 0, duration: 0.8 }, '-=0.4')
-          .from('.h-globe-wrap', { scale: 0.7, autoAlpha: 0, duration: 1.6, ease: 'expo.out' }, 0.2)
-          .from('.h-chip', { y: 20, autoAlpha: 0, scale: 0.8, duration: 0.7, stagger: 0.15 }, 0.9);
-        gsap.to('.h-chip', { y: '-=10', duration: 2.4, ease: 'sine.inOut', yoyo: true, repeat: -1, stagger: 0.4 });
-      }, root);
+        const tl = gsap.timeline({ paused: true, onComplete: () => el.classList.add('ch-done') });
+        tl.fromTo('.hh-stage', { scale: 1.3 }, { scale: 1, duration: 2.6, ease: 'expo.out' }, 0)
+          .fromTo('.hh-title .sc', { y: 0, yPercent: 120, rotate: 8 }, { y: 0, yPercent: 0, rotate: 0, duration: 1.2, ease: 'expo.out', stagger: 0.03 }, 0.1)
+          .fromTo('.ch-anim', { y: 34, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.9, ease: 'power3.out', stagger: 0.09 }, 0.6)
+          .fromTo('.ch-line', { scaleX: 0 }, { scaleX: 1, duration: 1.3, ease: 'expo.inOut' }, 0.4);
+        stop = onReveal(() => tl.play());
+        gsap.to('.hh-stage-in', { yPercent: 20, scale: 1.1, ease: 'none', scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true } });
+        gsap.to('.hh-title', { yPercent: -30, ease: 'none', scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true } });
+        gsap.to('.ch-dark', { opacity: 0.8, ease: 'none', scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true } });
+      }, el);
     });
-    return () => ctx?.revert();
+    return () => { cancelled = true; stop(); ctx?.revert(); };
   }, []);
 
   async function search(e) {
@@ -50,55 +68,59 @@ export default function Hero({ points, stats }) {
     router.push(`/listings/?${p.toString()}`);
   }
 
-  const words = (s) => s.split(' ').map((w, i) => <span key={i} className="w-wrap"><span className="w">{w}</span> </span>);
-
   return (
-    <section className="h-hero" ref={root}>
-      <div className="h-bg" aria-hidden="true">
-        <span className="h-orb a" /><span className="h-orb b" /><span className="h-grid" />
+    <section className="cine-hero hh" ref={root} data-intro>
+      <div className="hh-stage" aria-hidden="true">
+        <div className="hh-stage-in">
+          {SLIDES.map((s, i) => (
+            <div key={s.src} className={`hh-slide ${i === slide ? 'on' : ''}`} style={{ backgroundImage: `url(${s.src})` }} />
+          ))}
+        </div>
       </div>
-      <div className="l-section-h h-hero-in">
-        <div className="h-copy">
-          <p className="h-kicker"><span className="dot" /> America’s RV Park Marketplace</p>
-          <h1 className="h-title">{words('Buy. Sell.')}<br />{words('Advertise. Grow.')}</h1>
-          <p className="h-sub">The place where RV park buyers, sellers, brokers and owners come together.</p>
-          <div className="h-ctas">
-            <Link href="/listings/?_listing_status=for-sale" className="btn btn-lg">Search RV Parks for Sale</Link>
+      <div className="ch-shade" /><div className="ch-dark" />
+
+      <div className="l-section-h hh-in">
+        <p className="ch-kicker ch-anim"><span className="ch-idx">(Since 2006)</span>America’s RV Park Marketplace</p>
+        <Split as="h1" text={'Buy. *Sell.*\nAdvertise. *Grow.*'} className="hh-title" />
+        <span className="ch-line" aria-hidden="true" />
+        <div className="hh-row">
+          <p className="ch-sub ch-anim">The place where RV park buyers, sellers, brokers and owners come together.</p>
+          <div className="hh-ctas ch-anim">
+            <Link href="/listings/?_listing_status=for-sale" className="btn btn-lg" data-label="RV Parks for Sale">Search RV Parks for Sale</Link>
             <Link href="/sell-my-rv-park/" className="btn btn-lg btn-ghost">Sell My RV Park</Link>
           </div>
-          <form className="h-search" onSubmit={search} role="search">
-            <div className="hs-field hs-loc">
-              <span className="hs-label">Location</span>
-              <LocationInput value={loc} onChange={(v) => { setLoc(v); setPlace(null); }} onPick={(pl) => { setLoc(pl.label); setPlace(pl); }} placeholder="City, state or ZIP" />
-            </div>
-            <label className="hs-field">
-              <span className="hs-label">Property type</span>
-              <select name="category" defaultValue="">
-                <option value="">All property types</option>
-                {Object.entries(CATEGORIES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </select>
-            </label>
-            <label className="hs-field">
-              <span className="hs-label">Price</span>
-              <select name="price" defaultValue="">
-                {PRICES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
-              </select>
-            </label>
-            <button type="submit" className="btn hs-go" aria-label="Search">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L21 21" /></svg>
-              <span>Search</span>
-            </button>
-          </form>
         </div>
-        <div className="h-globe-wrap">
-          <div className="h-globe-glow" />
-          <HeroGlobe points={points} />
-          <div className="h-chip c1"><b data-count={stats.forSale}>{stats.forSale}</b><span>parks for sale now</span></div>
-          <div className="h-chip c2"><b data-count={stats.states}>{stats.states}</b><span>states with listings</span></div>
-          <div className="h-chip c3"><b>4</b><span>ways to buy, sell &amp; grow</span></div>
-        </div>
+        <form className="h-search ch-anim" onSubmit={search} role="search">
+          <div className="hs-field hs-loc">
+            <span className="hs-label">Location</span>
+            <LocationInput value={loc} onChange={(v) => { setLoc(v); setPlace(null); }} onPick={(pl) => { setLoc(pl.label); setPlace(pl); }} placeholder="City, state or ZIP" />
+          </div>
+          <label className="hs-field">
+            <span className="hs-label">Property type</span>
+            <select name="category" defaultValue="">
+              <option value="">All property types</option>
+              {Object.entries(CATEGORIES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          </label>
+          <label className="hs-field">
+            <span className="hs-label">Price</span>
+            <select name="price" defaultValue="">
+              {PRICES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+            </select>
+          </label>
+          <button type="submit" className="btn hs-go" aria-label="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L21 21" /></svg>
+            <span>Search</span>
+          </button>
+        </form>
       </div>
-      <a href="#ecosystem" className="h-scroll" aria-label="Scroll down"><span /></a>
+
+      <div className="hh-side ch-anim" aria-hidden="true">
+        <div><b>{stats.forSale}</b><span>Parks for sale</span></div>
+        <div><b>{stats.states}</b><span>States listed</span></div>
+        <div className="hh-slide-n"><b>{String(slide + 1).padStart(2, '0')}</b><span>/ {String(SLIDES.length).padStart(2, '0')} · {SLIDES[slide].label}</span></div>
+      </div>
+      <div className="ch-foot ch-anim" aria-hidden="true"><span className="ch-scroll"><i />Scroll</span></div>
     </section>
   );
 }

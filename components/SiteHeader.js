@@ -74,7 +74,7 @@ export default function SiteHeader() {
       <header className={`l-header ${sticky ? 'is-sticky' : ''} ${open ? 'menu-open' : ''}`}>
         <div className="l-header-h">
           <Link href="/" className="logo" aria-label="RVParkSales.com home">
-            <img src="/images/site/RV-Parks-FF-02.webp" alt="RV Park Sales" width="360" height="167" />
+            <img src="/images/logo-light.png" alt="RV Park Sales" width="373" height="172" />
           </Link>
           {/* Large screens: all links in a row, sub-menus open on hover/focus. */}
           <nav className="nav-desk" aria-label="Main">

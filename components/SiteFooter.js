@@ -46,7 +46,7 @@ export default function SiteFooter() {
         <div className="f-mid-img" style={{ backgroundImage: 'url(/images/site/1956989740-scaled.jpg)' }} />
         <div className="l-section-h f-mid-h">
           <div className="f-card f-card-main">
-            <div className="f-logo"><img src="/images/site/RV-Parks-FF-02.webp" alt="RV Park Sales" width="360" height="167" /></div>
+            <div className="f-logo"><img src="/images/logo-light.png" alt="RV Park Sales" width="373" height="172" /></div>
             <div className="f-contact">
               <div className="row">
                 <a href="https://calendly.com/marie-rvparksales/30min" target="_blank" rel="noopener" aria-label="Schedule"><Icon name="calendar" /></a>
@@ -95,6 +95,8 @@ export default function SiteFooter() {
           </div>
         </div>
       </section>
+
+      <div className="f-word" aria-hidden="true">{'RVParkSales'.split('').map((c, i) => <span key={i}>{c}</span>)}</div>
 
       <section className="f-bar">
         <div className="l-section-h">

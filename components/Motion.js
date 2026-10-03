@@ -30,7 +30,7 @@ export default function Motion() {
       if (cancelled) return;
       gsap.registerPlugin(ScrollTrigger);
       gsapRef = gsap;
-      lenis = new Lenis({ duration: 1.1, smoothWheel: true, prevent: (node) => !!node.closest?.('[data-lenis-prevent], .w-popup, .menu-panel, .arch-map, .filters-box, .gm-style, .leaflet-container, .pac-container') });
+      lenis = new Lenis({ duration: 1.2, smoothWheel: true, prevent: (node) => !!node.closest?.('[data-lenis-prevent], .w-popup, .menu-panel, .arch-map, .filters-box, .gm-style, .leaflet-container, .pac-container') });
       window.__lenis = lenis;
       lenis.on('scroll', ScrollTrigger.update);
       tick = (time) => lenis.raf(time * 1000);
@@ -57,13 +57,50 @@ export default function Motion() {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.__lenis?.scrollTo(0, { immediate: true });
     if (reduce) return undefined;
-    let ctx; let cancelled = false;
+    let ctx; let cancelled = false; let refreshT;
     const cleanups = [];
     Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(([{ gsap }, { ScrollTrigger }]) => {
       if (cancelled) return;
       gsap.registerPlugin(ScrollTrigger);
+      // Let page components build their pinned scenes first.
       ctx = gsap.context(() => {
-        const auto = [...document.querySelectorAll(AUTO)].filter((el) => !el.closest('[data-reveal], .hero, .h-hero'));
+        const auto = [...document.querySelectorAll(AUTO)].filter((el) => !el.closest('[data-reveal], [data-intro], .hero, .h-hero') && !el.matches('[data-split]'));
+        // Headlines split into letters rise out of their masks.
+        document.querySelectorAll('[data-split]').forEach((el) => {
+          if (el.closest('[data-intro]')) return;
+          gsap.fromTo(el.querySelectorAll('.sc'), { yPercent: 115, rotate: 5 }, {
+            yPercent: 0, rotate: 0, duration: 1, ease: 'expo.out', stagger: el.dataset.split === 'word' ? 0.06 : 0.018,
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+          });
+        });
+        // Photos unveil from the bottom while settling from a zoom.
+        document.querySelectorAll('[data-img-reveal]').forEach((el) => {
+          gsap.fromTo(el, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.4, ease: 'expo.inOut', scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
+          const img = el.querySelector('img, .img');
+          if (img) gsap.fromTo(img, { scale: 1.35 }, { scale: 1, duration: 1.8, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
+        });
+        // Cards that fly in from a scattered pile.
+        document.querySelectorAll('[data-pop]').forEach((el, i) => {
+          gsap.fromTo(el, { y: 140, rotate: i % 2 ? 14 : -14, autoAlpha: 0, scale: 0.9 }, {
+            y: 0, rotate: 0, autoAlpha: 1, scale: 1, duration: 1.1, ease: 'expo.out', delay: (i % 3) * 0.08,
+            scrollTrigger: { trigger: el, start: 'top 92%', once: true },
+          });
+        });
+        // Stacked sticky cards: each one sinks back as the next slides over it.
+        document.querySelectorAll('[data-stack]').forEach((wrap) => {
+          const cards = [...wrap.children];
+          cards.forEach((card, i) => {
+            const next = cards[i + 1];
+            if (!next) return;
+            gsap.to(card, { scale: 0.9 - (cards.length - i) * 0.01, filter: 'brightness(0.55)', ease: 'none',
+              scrollTrigger: { trigger: next, start: 'top bottom', end: 'top 20%', scrub: true } });
+          });
+        });
+        // Layers drifting at their own speed (scattered cards, floating art).
+        document.querySelectorAll('[data-speed]').forEach((el) => {
+          const k = Number(el.dataset.speed) || 0;
+          gsap.fromTo(el, { y: () => k * 120 }, { y: () => -k * 120, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true, invalidateOnRefresh: true } });
+        });
         const singles = [...document.querySelectorAll('[data-reveal]:not([data-reveal="stagger"])'), ...auto];
         singles.forEach((el) => {
           gsap.fromTo(el, { autoAlpha: 0, y: 40 }, {
@@ -102,7 +139,11 @@ export default function Motion() {
           });
         });
       });
+      // Pinned scenes may have been built before or after these: put every
+      // trigger back in page order, then measure again once images settle.
+      ScrollTrigger.sort();
       ScrollTrigger.refresh();
+      refreshT = setTimeout(() => ScrollTrigger.refresh(), 1200);
     });
 
     // 3D tilt toward the mouse on cards (desktop pointers only).
@@ -125,7 +166,7 @@ export default function Motion() {
       });
     }
 
-    return () => { cancelled = true; ctx?.revert(); cleanups.forEach((f) => f()); };
+    return () => { cancelled = true; clearTimeout(refreshT); ctx?.revert(); cleanups.forEach((f) => f()); };
   }, [pathname]);
 
   return null;
