@@ -798,3 +798,11 @@ section.l-section:not(.cine-hero):not(.cn-sec):not(.final-cta):not(.reviews-sec)
   .hh-in { padding-bottom: 70px; }
 }
 @media (max-width: 899px) { .hp-track { scrollbar-width: none; } .hp-track::-webkit-scrollbar { display: none; } }
+
+/* The page never scrolls sideways (html clips it), so the body must not
+   be its own scroll box: that is what broke sticky elements like the map. */
+body { overflow: visible !important; }
+@media (min-width: 1025px) {
+  .arch-map { position: sticky !important; top: 72px !important; height: calc(100vh - 72px) !important; align-self: start; }
+}
+.l-main, .l-footer { overflow-x: clip; }
