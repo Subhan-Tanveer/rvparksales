@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ListingGallery from '@/components/ListingGallery';
+import PageBand from '@/components/PageBand';
 import ListingPopups from '@/components/ListingPopups';
 import { allListings, listingBySlug, textOf, metaTitle, SITE } from '@/lib/content';
 
@@ -69,7 +70,7 @@ export default async function ListingPage({ params }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="title-band" style={{ backgroundImage: `url(${l.featuredImage || '/images/site/1956989740-scaled.jpg'})` }} />
+      <PageBand image={l.featuredImage || '/images/site/1956989740-scaled.jpg'} />
       <section className="l-section">
         <div className="l-section-h detail">
           <div className="detail-main">
