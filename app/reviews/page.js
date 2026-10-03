@@ -1,5 +1,6 @@
 import PageBand from '@/components/PageBand';
-import ReviewsGrid from '@/components/ReviewsGrid';
+import ReviewWall from '@/components/home/ReviewWall';
+import Split from '@/components/fx/Split';
 import { testimonials } from '@/lib/content';
 
 export const metadata = {
@@ -8,19 +9,23 @@ export const metadata = {
   alternates: { canonical: '/reviews/' },
 };
 
+// Reviews page: every review on the same scattered, taped-card wall as the
+// home page (full text, newest first; made-up reviews were not imported).
 export default function ReviewsPage() {
-  // Newest first, like the old reviews grid (made-up reviews were not imported).
   const items = [...testimonials()].reverse();
   return (
     <>
       <PageBand title="What Our Clients Say" kicker="Reviews" sub="Real words from RV park buyers, sellers and brokers we have worked with." crumbs={[{ label: 'Reviews' }]} />
-      <section className="l-section s-medium-72">
+      <section className="cn-sec cn-paper reviews-wall">
         <div className="l-section-h">
-          <div className="center">
-            <a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn" target="_blank" rel="noopener">Leave A Review</a>
+          <div className="cn-head cn-head-row">
+            <div>
+              <p className="eyebrow">({items.length}) Five-star reviews</p>
+              <Split as="h2" text={'Straight from\n*our clients*'} className="cn-title" />
+            </div>
+            <a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn btn-lg btn-ink" target="_blank" rel="noopener">Leave A Review ↗</a>
           </div>
-          <hr className="hr-line" style={{ height: 27 }} />
-          <ReviewsGrid items={items} />
+          <ReviewWall items={items} full />
         </div>
       </section>
     </>
