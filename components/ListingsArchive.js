@@ -137,17 +137,23 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
     if (!mapEl.current) return undefined;
     let cancelled = false;
     const pts = shown.filter((l) => l.lat && l.lng);
+    // Small, fast copies of the photos (Next's image optimizer) for the map card.
+    const thumb = (src) => (/^https:\/\/www\.rvparksales\.com\//.test(src) ? `/_next/image?url=${encodeURIComponent(src)}&w=384&q=70` : src);
     // Hover card for a pin: photo slider (with small back/next arrows), title and price.
     const card = (l) => {
-      const photos = l.photos?.length ? l.photos : (l.featuredImage ? [l.featuredImage] : []);
+      const photos = (l.photos?.length ? l.photos : (l.featuredImage ? [l.featuredImage] : [])).map(thumb);
       const el = document.createElement('div');
-      el.className = 'map-card';
+      el.className = 'map-card-one';
       let i = 0;
       el.innerHTML = `${photos.length ? `<a class="mc-img" href="/listing/${l.slug}/"><img src="${photos[0]}" alt="" /></a>` : ''}${photos.length > 1 ? '<button type="button" class="mc-nav prev" aria-label="Previous photo"></button><button type="button" class="mc-nav next" aria-label="Next photo"></button><span class="mc-count"></span>' : ''}<a class="mc-title" href="/listing/${l.slug}/"></a>${l.priceUsd ? `<div class="mc-price">$ ${money(l.priceUsd)}</div>` : ''}`;
       el.querySelector('.mc-title').textContent = l.title;
       const img = el.querySelector('.mc-img img');
       const count = el.querySelector('.mc-count');
-      const show = () => { img.src = photos[i]; if (count) count.textContent = `${i + 1} / ${photos.length}`; };
+      if (img) img.addEventListener('load', () => img.classList.remove('loading'));
+      const show = () => {
+        if (img.getAttribute('src') !== photos[i]) { img.classList.add('loading'); img.src = photos[i]; }
+        if (count) count.textContent = `${i + 1} / ${photos.length}`;
+      };
       if (count) show();
       el.querySelectorAll('.mc-nav').forEach((b) => b.addEventListener('click', (e) => {
         e.preventDefault(); e.stopPropagation();
@@ -157,10 +163,42 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
       photos.slice(1).forEach((src) => { const im = new Image(); im.src = src; }); // preload so arrows feel instant
       return el;
     };
+    // Parks at (almost) the same spot share one pin; the card then lets you
+    // step through them ("Park 1 of 3").
+    const groups = [];
+    pts.forEach((l) => {
+      const g = groups.find((x) => Math.abs(x.lat - l.lat) < 0.005 && Math.abs(x.lng - l.lng) < 0.005);
+      if (g) g.items.push(l); else groups.push({ lat: l.lat, lng: l.lng, items: [l] });
+    });
+    const groupCard = (grp) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'map-card';
+      if (grp.items.length === 1) { wrap.appendChild(card(grp.items[0])); return wrap; }
+      let k = 0;
+      const bar = document.createElement('div');
+      bar.className = 'mc-group';
+      bar.innerHTML = '<button type="button" class="prev" aria-label="Previous park">‹</button><span></span><button type="button" class="next" aria-label="Next park">›</button>';
+      const body = document.createElement('div');
+      const render = () => { body.replaceChildren(card(grp.items[k])); bar.querySelector('span').textContent = `Park ${k + 1} of ${grp.items.length} here`; };
+      bar.querySelectorAll('button').forEach((b) => b.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        k = (k + (b.classList.contains('next') ? 1 : -1) + grp.items.length) % grp.items.length;
+        render();
+      }));
+      render();
+      wrap.append(bar, body);
+      return wrap;
+    };
     // Open on hover; stay open while the pointer is on the pin or the card.
+    // While the pointer is on the card, other pins underneath it are ignored.
     let closeTimer = null;
+    let overCard = false;
     const hold = () => clearTimeout(closeTimer);
     const later = (fn) => { clearTimeout(closeTimer); closeTimer = setTimeout(fn, 300); };
+    const watch = (el, close) => {
+      el.addEventListener('mouseenter', () => { overCard = true; hold(); });
+      el.addEventListener('mouseleave', () => { overCard = false; close(); });
+    };
     (key ? loadGoogleMaps() : loadLeaflet()).then(() => {
       if (cancelled) return;
       if (key) {
@@ -169,31 +207,30 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
         layer.current.forEach((m) => m.setMap(null));
         const info = new g.InfoWindow({ maxWidth: 280 });
         let pinned = false;
-        info.addListener('closeclick', () => { pinned = false; });
+        info.addListener('closeclick', () => { pinned = false; overCard = false; info.__for = null; });
         const bounds = new g.LatLngBounds();
-        layer.current = pts.map((l) => {
+        layer.current = groups.map((grp, gi) => {
           const m = new g.Marker({
-            position: { lat: l.lat, lng: l.lng }, map: map.current,
+            position: { lat: grp.lat, lng: grp.lng }, map: map.current,
             ...(pinColor !== 'red' && { icon: { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(pinSvg(PINS[pinColor]))}`, scaledSize: new g.Size(27, 43) } }),
           });
           const open = () => {
             hold();
-            if (info.__for === l.slug && info.getMap()) return;
-            const el = card(l);
-            el.addEventListener('mouseenter', hold);
-            el.addEventListener('mouseleave', () => { if (!pinned) later(() => info.close()); });
-            info.__for = l.slug;
+            if (info.__for === gi && info.getMap()) return;
+            const el = groupCard(grp);
+            watch(el, () => { if (!pinned) later(() => { info.close(); info.__for = null; }); });
+            info.__for = gi;
             info.setContent(el);
             info.open({ map: map.current, anchor: m, shouldFocus: false });
           };
-          m.addListener('mouseover', () => { pinned = false; open(); });
-          m.addListener('mouseout', () => { if (!pinned) later(() => info.close()); });
-          m.addListener('click', () => { open(); pinned = true; });
+          m.addListener('mouseover', () => { if (overCard || (pinned && info.getMap())) return; open(); });
+          m.addListener('mouseout', () => { if (!pinned) later(() => { info.close(); info.__for = null; }); });
+          m.addListener('click', () => { pinned = false; info.__for = null; open(); pinned = true; });
           bounds.extend(m.getPosition());
           return m;
         });
-        if (pts.length > 1) map.current.fitBounds(bounds, 40);
-        else if (pts.length === 1) { map.current.setCenter(bounds.getCenter()); map.current.setZoom(8); }
+        if (groups.length > 1) map.current.fitBounds(bounds, 40);
+        else if (groups.length === 1) { map.current.setCenter(bounds.getCenter()); map.current.setZoom(8); }
       } else {
         const L = window.L;
         if (!map.current) {
@@ -204,14 +241,13 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
         }
         layer.current.forEach((m) => m.remove());
         const icon = L.divIcon({ html: pinSvg(PINS[pinColor] || PINS.red), className: 'map-pin', iconSize: [27, 43], iconAnchor: [13.5, 43], popupAnchor: [0, -38] });
-        layer.current = pts.map((l) => {
-          const mk = L.marker([l.lat, l.lng], { icon }).bindPopup(() => {
-            const el = card(l);
-            el.addEventListener('mouseenter', hold);
-            el.addEventListener('mouseleave', () => later(() => mk.closePopup()));
+        layer.current = groups.map((grp) => {
+          const mk = L.marker([grp.lat, grp.lng], { icon }).bindPopup(() => {
+            const el = groupCard(grp);
+            watch(el, () => later(() => mk.closePopup()));
             return el;
           }, { maxWidth: 280, minWidth: 240 }).addTo(map.current);
-          mk.on('mouseover', () => { hold(); mk.openPopup(); });
+          mk.on('mouseover', () => { if (overCard) return; hold(); mk.openPopup(); });
           mk.on('mouseout', () => later(() => mk.closePopup()));
           return mk;
         });

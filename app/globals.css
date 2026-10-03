@@ -521,3 +521,8 @@ h1, h2, h3 { overflow-wrap: break-word; }
 .map-card .mc-title:hover { color: var(--blue); }
 .map-card .mc-price { color: var(--purple); margin-top: 4px; }
 .gm-style .gm-style-iw-c { padding-top: 12px !important; }
+.map-card-one { position: relative; }
+.map-card .mc-img img.loading { opacity: .35; transition: opacity .15s ease; }
+.map-card .mc-group { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--muted); }
+.map-card .mc-group button { width: 24px; height: 24px; border: 1px solid #dde1ec; background: #fff; border-radius: 50%; cursor: pointer; font-size: 16px; line-height: 1; color: var(--heading); padding: 0; }
+.map-card .mc-group button:hover { background: var(--bg-alt); }
