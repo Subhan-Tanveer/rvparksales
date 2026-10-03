@@ -13,7 +13,7 @@ export default function BlogIndex() {
   const all = posts();
   return (
     <>
-      <PageBand title="Blog:" />
+      <PageBand title="The RV Park Blog" kicker="Resources" sub="Buying, selling, financing and growing RV parks: practical insights from the RVParkSales team." crumbs={[{ label: 'Blog' }]} />
       <BlogList items={all.slice(0, PER_PAGE)} page={1} pages={Math.ceil(all.length / PER_PAGE)} base="/blog-buying-and-selling-rv-parks/" searchable />
     </>
   );

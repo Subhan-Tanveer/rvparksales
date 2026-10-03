@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import ListingsArchive from '@/components/ListingsArchive';
+import PageBand from '@/components/PageBand';
 import { allListings, statesWithListings, stateSlug } from '@/lib/content';
 
 // Old address pattern kept for search engines: /listing-state/florida/
@@ -30,12 +31,7 @@ export default async function StatePage({ params }) {
   }));
   return (
     <>
-      <section className="l-section s-medium-72">
-        <div className="l-section-h">
-          <h1 style={{ margin: '0 0 27px' }}>{name} RV Parks and Campgrounds</h1>
-          <p style={{ margin: 0 }}>This is where you will find a list of RV Parks for sale in {name} as well as a list of Campgrounds for sale in {name}</p>
-        </div>
-      </section>
+      <PageBand title={`${name} RV Parks and Campgrounds`} kicker="Browse by state" sub={`This is where you will find a list of RV Parks for sale in ${name} as well as a list of Campgrounds for sale in ${name}.`} crumbs={[{ label: 'RV Parks for Sale', href: '/listings/?_listing_status=for-sale' }, { label: name }]} compact />
       <Suspense fallback={<p style={{ padding: 40 }}>Loading listings…</p>}>
         <ListingsArchive listings={listings} fixedState={name} pinColor="purple" />
       </Suspense>

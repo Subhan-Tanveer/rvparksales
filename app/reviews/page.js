@@ -13,7 +13,7 @@ export default function ReviewsPage() {
   const items = [...testimonials()].reverse();
   return (
     <>
-      <PageBand title="Reviews" />
+      <PageBand title="What Our Clients Say" kicker="Reviews" sub="Real words from RV park buyers, sellers and brokers we have worked with." crumbs={[{ label: 'Reviews' }]} />
       <section className="l-section s-medium-72">
         <div className="l-section-h">
           <div className="center">

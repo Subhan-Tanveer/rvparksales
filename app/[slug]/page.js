@@ -128,7 +128,7 @@ export default async function ContentPage({ params }) {
   if (kind === 'post') return <PostView p={item} />;
   return (
     <>
-      <PageBand title={item.title} image={item.featuredImage || undefined} />
+      <PageBand title={item.title} image={item.featuredImage || undefined} crumbs={[{ label: item.title }]} compact />
       <section className="l-section s-medium-72">
         <div className="l-section-h">
           <div className="prose" dangerouslySetInnerHTML={{ __html: item.contentHtml }} />

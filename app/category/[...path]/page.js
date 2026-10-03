@@ -21,7 +21,7 @@ export default async function CategoryPage({ params }) {
   if (!c) notFound();
   return (
     <>
-      <PageBand title={c.name} />
+      <PageBand title={c.name} kicker="Blog category" sub={`${c.count} ${c.count === 1 ? 'article' : 'articles'} on this topic`} crumbs={[{ label: 'Blog', href: '/blog-buying-and-selling-rv-parks/' }, { label: c.name }]} />
       <BlogList items={c.posts} base={c.path} />
     </>
   );

@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import ListingsArchive from '@/components/ListingsArchive';
+import PageBand from '@/components/PageBand';
 import { allListings } from '@/lib/content';
 
 export const metadata = {
@@ -18,8 +19,11 @@ function leanListings() {
 
 export default function ListingsPage() {
   return (
-    <Suspense fallback={<p style={{ padding: 40 }}>Loading listings…</p>}>
-      <ListingsArchive listings={leanListings()} />
-    </Suspense>
+    <>
+      <PageBand title="RV Parks & Campgrounds for Sale" kicker="Marketplace" sub="Search parks, campgrounds, RV lots and RV/MH communities across the USA. Use Filters to narrow by location, price, sites and more." crumbs={[{ label: 'RV Parks for Sale' }]} image="/images/site/Parks-for-sale.webp" compact />
+      <Suspense fallback={<p style={{ padding: 40 }}>Loading listings…</p>}>
+        <ListingsArchive listings={leanListings()} />
+      </Suspense>
+    </>
   );
 }

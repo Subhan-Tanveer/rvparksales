@@ -13,7 +13,7 @@ export const metadata = {
 export default function AboutPage() {
   return (
     <>
-      <PageBand title="About Us" />
+      <PageBand title="About Us" kicker="Who we are" sub="America’s specialized marketplace for RV parks and campgrounds, connecting owners with serious buyers nationwide." crumbs={[{ label: 'About Us' }]} />
       <section className="l-section">
         <div className="l-section-h cols-2-1">
           <div>

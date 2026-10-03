@@ -22,7 +22,13 @@ const FIELDS = [
 export default function ContactPage() {
   return (
     <>
-      <PageBand title="Contact" image="/images/site/RV-PARKS.webp" />
+      <PageBand title="Contact Us" image="/images/site/RV-PARKS.webp" kicker="Get in touch" sub="Buying, selling or just exploring? Send a message or call us. We usually reply the same day." crumbs={[{ label: 'Contact' }]}>
+        <div className="pb-chips">
+          <a href="tel:8508320022" className="pb-chip">Call 850-832-0022</a>
+          <a href="mailto:marie@rvparksales.com" className="pb-chip">marie@rvparksales.com</a>
+          <a href="https://calendly.com/marie-rvparksales/30min" target="_blank" rel="noopener" className="pb-chip">Book a free consultation</a>
+        </div>
+      </PageBand>
       <section className="l-section" id="sellers">
         <div className="l-section-h cols-2-1">
           <div>

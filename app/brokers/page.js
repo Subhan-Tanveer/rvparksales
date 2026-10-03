@@ -1,4 +1,5 @@
 import PeopleArchive from '@/components/PeopleArchive';
+import PageBand from '@/components/PageBand';
 import { GfPopup } from '@/components/GfForm';
 import { brokers } from '@/lib/content';
 
@@ -20,16 +21,18 @@ const FIELDS = [
 
 export default function BrokersPage() {
   return (
+    <>
+    <PageBand title="RV Park Brokers" kicker="Our network" sub="Experienced brokers who specialize in RV parks and campgrounds, licensed across the country." crumbs={[{ label: 'Brokers' }]}>
+      <button type="button" className="btn btn-lg broker-info">Get Broker Information</button>
+    </PageBand>
     <section className="l-section s-medium-72">
       <div className="l-section-h">
-        <h1 style={{ margin: 0 }}>Brokers</h1>
-        <div style={{ height: 27 }} />
-        <p>Thanks for checking out the RV Park Brokers section of RVParkSales.com.&nbsp; If you are considering selling your RV Park or Campground soon or if you are waiting into the future, it’s never too soon to get acquainted with an experienced RV Park Broker.&nbsp; You may have questions that only an experienced Broker can answer.&nbsp; There’s no obligation, so start your research here by filling in the contact info and add any extra info you want to share in the Add Note box. A professional Broker who is licensed in your state will be in touch.</p>
-        <button type="button" className="btn broker-info">Get Broker Information</button>
-        <div style={{ height: 54 }} />
+        <p className="lead-p">Thanks for checking out the RV Park Brokers section of RVParkSales.com.&nbsp; If you are considering selling your RV Park or Campground soon or if you are waiting into the future, it’s never too soon to get acquainted with an experienced RV Park Broker.&nbsp; You may have questions that only an experienced Broker can answer.&nbsp; There’s no obligation, so start your research here by filling in the contact info and add any extra info you want to share in the Add Note box. A professional Broker who is licensed in your state will be in touch.</p>
+        <div style={{ height: 40 }} />
         <PeopleArchive people={brokers()} basePath="broker" />
       </div>
       <GfPopup triggerClass="broker-info" title="Get Broker Information" width={800} form="Broker Information" fields={FIELDS} />
     </section>
+    </>
   );
 }

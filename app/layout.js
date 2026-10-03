@@ -1,5 +1,6 @@
 import './globals.css';
 import './redesign.css';
+import './modern.css';
 import Script from 'next/script';
 import { Rubik, Montserrat } from 'next/font/google';
 import SiteHeader from '@/components/SiteHeader';

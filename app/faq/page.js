@@ -19,10 +19,9 @@ export default function FaqPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <PageBand title="FAQ" />
+      <PageBand title="Frequently Asked Questions" kicker="Answers" sub="Everything buyers, sellers and brokers ask us about RVParkSales.com." crumbs={[{ label: 'FAQ' }]} />
       <section className="l-section s-medium-72">
         <div className="l-section-h">
-          <h2 style={{ margin: '0 0 27px' }}>Frequently Asked Questions</h2>
           <FaqAccordion items={items} adsUrl={SITE.ads} />
         </div>
       </section>

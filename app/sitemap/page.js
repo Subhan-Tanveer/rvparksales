@@ -14,7 +14,7 @@ export default function SitemapPage() {
   const pageList = [...pages()].filter((p) => !RETIRED.has(p.slug)).sort((a, b) => b.wpId - a.wpId);
   return (
     <>
-      <PageBand title="Sitemap" />
+      <PageBand title="Sitemap" kicker="Every page" sub="All pages, articles and listings on RVParkSales.com." crumbs={[{ label: 'Sitemap' }]} compact />
       <section className="l-section s-medium-72">
         <div className="l-section-h prose sitemap">
           <h2>Pages</h2>
