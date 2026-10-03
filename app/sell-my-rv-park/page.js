@@ -1,5 +1,6 @@
 import HeroSlides from '@/components/HeroSlides';
 import ReviewsSlider from '@/components/ReviewsSlider';
+import SellerForm from '@/components/SellerForm';
 import { SITE, testimonials } from '@/lib/content';
 
 export const metadata = {
@@ -51,6 +52,15 @@ export default function SellPage() {
             <h3 className="sec-title">Our Latest Reviews</h3>
             <ReviewsSlider items={reviews} action={<a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn" target="_blank" rel="noopener">Leave A Review</a>} />
           </div>
+        </div>
+      </section>
+
+      <section className="l-section hm-sec hm-alt">
+        <div className="l-section-h" style={{ maxWidth: 900 }}>
+          <p className="eyebrow">Get started</p>
+          <h2 className="sec-title">Tell Us About Your Park</h2>
+          <p className="sec-lede">Fill out the form and we’ll be in touch about your selling options.</p>
+          <SellerForm />
         </div>
       </section>
     </>

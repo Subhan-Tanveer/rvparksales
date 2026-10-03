@@ -3,35 +3,50 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-// Same menu as the current rvparksales.com: a white bar with the logo on the
-// left and MENU on the right; the menu slides in from the left as a panel.
+// Menu from Marie's new plan (Oct 2026): RVParkSales is the hub, with its three
+// sister services in the main bar, plus the two key buttons. On large screens
+// the links sit in a row (sub-menus on hover); on tablets/phones they move into
+// the slide-in MENU panel.
 const MENU = [
-  { label: 'Home', href: '/' },
-  { label: 'About Us', href: '/about-selling-an-rv-park/' },
   {
-    label: 'Explore Parks', href: '/listings/?_listing_status=for-sale',
+    label: 'Buy a Park', href: '/listings/?_listing_status=for-sale',
     sub: [
+      { label: 'All RV Parks for Sale', href: '/listings/?_listing_status=for-sale' },
       { label: 'RV Parks / Campgrounds', href: '/listings/?_listing_category=rv-parks-campgrounds&_listing_status=for-sale' },
       { label: 'RV Lots', href: '/listings/?_listing_category=rv-lots&_listing_status=for-sale' },
-      { label: 'All Listings for Sale', href: '/listings/?_listing_status=for-sale' },
+      { label: 'RV / MH Communities', href: '/listings/?_listing_category=rv-mh-communities&_listing_status=for-sale' },
       { label: 'Sold Listings', href: '/listings/?_listing_status=sold' },
+      { label: 'Request a Buyer Consultation', href: '#', popup: 'buyer-consultation' },
     ],
   },
-  { label: 'RV Park Brokers', href: '/brokers/' },
-  { label: 'RV Park Developers', href: '/developers/' },
-  { label: 'Reviews', href: '/reviews/' },
-  { label: 'FAQ', href: '/faq/' },
   {
-    label: 'Contact', href: '/contact/',
+    label: 'Sell a Park', href: '/sell-my-rv-park/',
     sub: [
-      { label: 'Send a Message', href: '/contact/' },
-      { label: 'Buyers', href: '#', popup: 'buyer-consultation' },
-      { label: 'Sellers', href: '/contact/#sellers', popup: 'seller-consultation' },
-      { label: 'Schedule a Free Consultation', href: 'https://calendly.com/marie-rvparksales/30min', external: true },
+      { label: 'Selling Options', href: '/#selling' },
+      { label: 'Sell With a Broker', href: '/brokers/' },
+      { label: 'Advertise It Yourself (RVParkAds)', href: 'https://rvparkads.com/#plans', external: true },
+      { label: 'Request a Seller Consultation', href: '/contact/#sellers', popup: 'seller-consultation' },
+      { label: 'RV Park Developers', href: '/developers/' },
     ],
   },
-  { label: 'Blog', href: '/blog-buying-and-selling-rv-parks/' },
+  { label: 'RVParkSelect', href: 'https://rvparkselect.com', external: true },
+  { label: 'RVParkAds', href: 'https://rvparkads.com', external: true },
+  { label: 'RVParkSuccess', href: 'https://www.rvparksuccess.com', external: true },
+  {
+    label: 'Resources', href: '/blog-buying-and-selling-rv-parks/',
+    sub: [
+      { label: 'Blog', href: '/blog-buying-and-selling-rv-parks/' },
+      { label: 'FAQ', href: '/faq/' },
+      { label: 'Reviews', href: '/reviews/' },
+      { label: 'About Us', href: '/about-selling-an-rv-park/' },
+      { label: 'Contact', href: '/contact/' },
+    ],
+  },
 ];
+
+const ItemLink = ({ item, className, children, ...rest }) => (item.external
+  ? <a href={item.href} className={className} target="_blank" rel="noopener" {...rest}>{children}</a>
+  : <Link href={item.href} className={className} {...rest}>{children}</Link>);
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -66,9 +81,9 @@ export default function SiteHeader() {
             <ul>
               {MENU.map((item) => (
                 <li key={item.label} className={item.sub ? 'has-drop' : ''}>
-                  <Link href={item.href} className={isActive(item.href) ? 'active' : ''} aria-haspopup={item.sub ? 'true' : undefined}>
-                    {item.label}{item.sub && <span className="chev" aria-hidden="true" />}
-                  </Link>
+                  <ItemLink item={item} className={!item.external && isActive(item.href) ? 'active' : ''} aria-haspopup={item.sub ? 'true' : undefined}>
+                    {item.label}{item.sub && <span className="chev" aria-hidden="true" />}{item.external && <span className="ext" aria-hidden="true">↗</span>}
+                  </ItemLink>
                   {item.sub && (
                     <ul className="drop">
                       {item.sub.map((s) => (
@@ -86,6 +101,10 @@ export default function SiteHeader() {
               ))}
             </ul>
           </nav>
+          <div className="nav-ctas">
+            <Link href="/listings/?_listing_status=for-sale" className="btn btn-sm">Search Parks</Link>
+            <a href="https://calendly.com/marie-rvparksales/30min" className="btn btn-sm btn-2" target="_blank" rel="noopener">Free Consultation</a>
+          </div>
           {/* Phones and tablets: MENU button with the slide-in panel. */}
           <button type="button" className="menu-ctl" aria-expanded={open} aria-controls="site-menu" onClick={() => setOpen(!open)}>
             <span>Menu</span><span className="burger"><i /></span>
@@ -100,7 +119,7 @@ export default function SiteHeader() {
               {item.sub ? (
                 <>
                   <div className="has-sub">
-                    <Link href={item.href} className={isActive(item.href) ? 'active' : ''}>{item.label}</Link>
+                    <ItemLink item={item} className={!item.external && isActive(item.href) ? 'active' : ''}>{item.label}{item.external && <span className="ext" aria-hidden="true"> ↗</span>}</ItemLink>
                     <button type="button" className="sub-toggle" aria-label={`${item.label} Menu`} aria-expanded={expanded === item.label} onClick={() => setExpanded(expanded === item.label ? null : item.label)}>
                       <span className="chev" />
                     </button>
@@ -120,11 +139,15 @@ export default function SiteHeader() {
                   )}
                 </>
               ) : (
-                <Link href={item.href} className={isActive(item.href) ? 'active' : ''}>{item.label}</Link>
+                <ItemLink item={item} className={!item.external && isActive(item.href) ? 'active' : ''}>{item.label}{item.external && <span className="ext" aria-hidden="true"> ↗</span>}</ItemLink>
               )}
             </li>
           ))}
         </ul>
+        <div className="panel-ctas">
+          <Link href="/listings/?_listing_status=for-sale" className="btn btn-block">Search Parks</Link>
+          <a href="https://calendly.com/marie-rvparksales/30min" className="btn btn-block btn-2" target="_blank" rel="noopener">Get a Free Consultation</a>
+        </div>
       </nav>
     </>
   );

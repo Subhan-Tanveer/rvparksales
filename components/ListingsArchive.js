@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import LocationInput from '@/components/LocationInput';
+import { PRICES, SITES } from '@/lib/search-options';
 import { loadGoogleMaps, geocode } from '@/components/googleMaps';
 
 // Same layout as the old listings page (FacetWP): a Filters button that slides
@@ -16,6 +17,7 @@ const CATEGORIES = {
 };
 const STATUSES = { 'for-sale': 'For Sale', sold: 'Sold' };
 const RADII = [10, 25, 50, 100, 250, 500];
+
 const PER_PAGE = 24;
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const money = (n) => (n ? Number(n).toLocaleString('en-US') : null);
@@ -63,6 +65,8 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
   const loc = sp.get('_listing_location') || ''; // "lat,lng,radius,label" like FacetWP
   const page = Math.max(1, Number(sp.get('_paged')) || 1);
   const q = (sp.get('q') || '').trim().toLowerCase(); // from the home page search box
+  const maxPrice = Number(sp.get('_listing_price')) || 0; // "up to $X"
+  const minSites = Number(sp.get('_listing_sites')) || 0; // "at least N sites"
 
   const [locText, setLocText] = useState(() => decodeURIComponent(loc.split(',').slice(3).join(',') || sp.get('q') || ''));
   const [radius, setRadius] = useState(() => Number(loc.split(',')[2]) || 100);
@@ -88,17 +92,19 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
     && (skip === 'state' || !stateSlug || slugify(l.state || '') === stateSlug)
     && (!center || (l.lat && l.lng && miles(center, l) <= center.r))
     && (!q || center || `${l.title} ${l.state || ''} ${l.city || ''} ${l.address || ''}`.toLowerCase().includes(q))
+    && (!maxPrice || (l.priceUsd && l.priceUsd <= maxPrice))
+    && (!minSites || (l.sites && l.sites >= minSites))
   );
-  const shown = useMemo(() => listings.filter((l) => match(l)), [listings, status, category, stateSlug, center, q]); // eslint-disable-line react-hooks/exhaustive-deps
+  const shown = useMemo(() => listings.filter((l) => match(l)), [listings, status, category, stateSlug, center, q, maxPrice, minSites]); // eslint-disable-line react-hooks/exhaustive-deps
   const opts = useMemo(() => ({
     category: Object.keys(CATEGORIES).filter((k) => listings.some((l) => match(l, 'category') && l.category === CATEGORIES[k])),
     state: [...new Set(listings.filter((l) => match(l, 'state') && l.state).map((l) => l.state))].sort(),
     status: Object.keys(STATUSES).filter((k) => listings.some((l) => match(l, 'status') && l.status === STATUSES[k])),
-  }), [listings, status, category, stateSlug, center, q]); // eslint-disable-line react-hooks/exhaustive-deps
+  }), [listings, status, category, stateSlug, center, q, maxPrice, minSites]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pages = Math.max(1, Math.ceil(shown.length / PER_PAGE));
   const rows = shown.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-  const filterCount = [status, category, !fixedState && stateSlug, loc].filter(Boolean).length;
+  const filterCount = [status, category, !fixedState && stateSlug, loc, maxPrice, minSites].filter(Boolean).length;
 
   const setCenter = ({ lat, lng, label }, r = radius) => set({ _listing_location: `${lat.toFixed(5)},${lng.toFixed(5)},${r},${encodeURIComponent(label)}`, q: '' });
   const currentLabel = decodeURIComponent(loc.split(',').slice(3).join(','));
@@ -347,6 +353,18 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
               </select>
             </div>
           )}
+          <div className="facet">
+            <Label onReset={() => set({ _listing_price: '' })}>Price</Label>
+            <select value={String(maxPrice || '')} aria-label="Maximum price" onChange={(e) => set({ _listing_price: e.target.value })}>
+              {PRICES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+            </select>
+          </div>
+          <div className="facet">
+            <Label onReset={() => set({ _listing_sites: '' })}>Number of Sites</Label>
+            <select value={String(minSites || '')} aria-label="Minimum number of sites" onChange={(e) => set({ _listing_sites: e.target.value })}>
+              {SITES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+            </select>
+          </div>
           <div className="facet">
             <Label onReset={() => set({ _listing_status: '' })}>Status</Label>
             <select value={status} aria-label="Status" onChange={(e) => set({ _listing_status: e.target.value })}>
