@@ -12,6 +12,7 @@ function leanListings() {
   return allListings().map((l) => ({
     slug: l.slug, title: l.title, status: l.status, category: l.category, state: l.state, city: l.city,
     priceUsd: l.priceUsd, featuredImage: l.featuredImage, address: l.address, lat: l.lat, lng: l.lng,
+    photos: [...new Set([l.featuredImage, ...l.images].filter(Boolean))].slice(0, 8),
   }));
 }
 

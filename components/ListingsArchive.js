@@ -137,21 +137,58 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
     if (!mapEl.current) return undefined;
     let cancelled = false;
     const pts = shown.filter((l) => l.lat && l.lng);
-    const popup = (l) => `<div class="map-pop"><a href="/listing/${l.slug}/">${l.title.replace(/</g, '&lt;')}</a>${l.priceUsd ? `<div>$ ${money(l.priceUsd)}</div>` : ''}</div>`;
+    // Hover card for a pin: photo slider (with small back/next arrows), title and price.
+    const card = (l) => {
+      const photos = l.photos?.length ? l.photos : (l.featuredImage ? [l.featuredImage] : []);
+      const el = document.createElement('div');
+      el.className = 'map-card';
+      let i = 0;
+      el.innerHTML = `${photos.length ? `<a class="mc-img" href="/listing/${l.slug}/"><img src="${photos[0]}" alt="" /></a>` : ''}${photos.length > 1 ? '<button type="button" class="mc-nav prev" aria-label="Previous photo"></button><button type="button" class="mc-nav next" aria-label="Next photo"></button><span class="mc-count"></span>' : ''}<a class="mc-title" href="/listing/${l.slug}/"></a>${l.priceUsd ? `<div class="mc-price">$ ${money(l.priceUsd)}</div>` : ''}`;
+      el.querySelector('.mc-title').textContent = l.title;
+      const img = el.querySelector('.mc-img img');
+      const count = el.querySelector('.mc-count');
+      const show = () => { img.src = photos[i]; if (count) count.textContent = `${i + 1} / ${photos.length}`; };
+      if (count) show();
+      el.querySelectorAll('.mc-nav').forEach((b) => b.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        i = (i + (b.classList.contains('next') ? 1 : -1) + photos.length) % photos.length;
+        show();
+      }));
+      photos.slice(1).forEach((src) => { const im = new Image(); im.src = src; }); // preload so arrows feel instant
+      return el;
+    };
+    // Open on hover; stay open while the pointer is on the pin or the card.
+    let closeTimer = null;
+    const hold = () => clearTimeout(closeTimer);
+    const later = (fn) => { clearTimeout(closeTimer); closeTimer = setTimeout(fn, 300); };
     (key ? loadGoogleMaps() : loadLeaflet()).then(() => {
       if (cancelled) return;
       if (key) {
         const g = window.google.maps;
         map.current ||= new g.Map(mapEl.current, { center: { lat: 39, lng: -98 }, zoom: 4, streetViewControl: false });
         layer.current.forEach((m) => m.setMap(null));
-        const info = new g.InfoWindow();
+        const info = new g.InfoWindow({ maxWidth: 280 });
+        let pinned = false;
+        info.addListener('closeclick', () => { pinned = false; });
         const bounds = new g.LatLngBounds();
         layer.current = pts.map((l) => {
           const m = new g.Marker({
-            position: { lat: l.lat, lng: l.lng }, map: map.current, title: l.title,
+            position: { lat: l.lat, lng: l.lng }, map: map.current,
             ...(pinColor !== 'red' && { icon: { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(pinSvg(PINS[pinColor]))}`, scaledSize: new g.Size(27, 43) } }),
           });
-          m.addListener('click', () => { info.setContent(popup(l)); info.open(map.current, m); });
+          const open = () => {
+            hold();
+            if (info.__for === l.slug && info.getMap()) return;
+            const el = card(l);
+            el.addEventListener('mouseenter', hold);
+            el.addEventListener('mouseleave', () => { if (!pinned) later(() => info.close()); });
+            info.__for = l.slug;
+            info.setContent(el);
+            info.open({ map: map.current, anchor: m, shouldFocus: false });
+          };
+          m.addListener('mouseover', () => { pinned = false; open(); });
+          m.addListener('mouseout', () => { if (!pinned) later(() => info.close()); });
+          m.addListener('click', () => { open(); pinned = true; });
           bounds.extend(m.getPosition());
           return m;
         });
@@ -167,7 +204,17 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
         }
         layer.current.forEach((m) => m.remove());
         const icon = L.divIcon({ html: pinSvg(PINS[pinColor] || PINS.red), className: 'map-pin', iconSize: [27, 43], iconAnchor: [13.5, 43], popupAnchor: [0, -38] });
-        layer.current = pts.map((l) => L.marker([l.lat, l.lng], { icon, title: l.title }).bindPopup(popup(l)).addTo(map.current));
+        layer.current = pts.map((l) => {
+          const mk = L.marker([l.lat, l.lng], { icon }).bindPopup(() => {
+            const el = card(l);
+            el.addEventListener('mouseenter', hold);
+            el.addEventListener('mouseleave', () => later(() => mk.closePopup()));
+            return el;
+          }, { maxWidth: 280, minWidth: 240 }).addTo(map.current);
+          mk.on('mouseover', () => { hold(); mk.openPopup(); });
+          mk.on('mouseout', () => later(() => mk.closePopup()));
+          return mk;
+        });
         if (pts.length > 1) map.current.fitBounds(L.latLngBounds(pts.map((l) => [l.lat, l.lng])), { padding: [40, 40] });
         else if (pts.length === 1) map.current.setView([pts[0].lat, pts[0].lng], 8);
       }
