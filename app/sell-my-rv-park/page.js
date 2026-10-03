@@ -42,20 +42,15 @@ export default function SellPage() {
         </div>
       </section>
 
-      <section className="l-section">
+      <section className="l-section reviews-sec">
+        <div className="reviews-photo" style={{ backgroundImage: 'url(/images/site/rv-parks-3.jpg)' }} />
         <div className="l-section-h reviews">
-          <div className="left" style={{ paddingTop: 0 }}>
-            <div style={{ height: 108 }} />
-            <div className="center"><a className="btn" href={SITE.ads} target="_blank" rel="noopener">ADVERTISE YOUR PARK</a></div>
-            <div style={{ height: 108 }} />
+          <div className="left">
+            <div className="center" style={{ marginBottom: 72 }}><a className="btn" href={SITE.ads} target="_blank" rel="noopener">ADVERTISE YOUR PARK</a></div>
             <p className="eyebrow">Don’t Just Take Our Word For It</p>
             <h3 className="sec-title">Our Latest Reviews</h3>
-            <ReviewsSlider items={reviews} />
-            <div style={{ textAlign: 'right' }}>
-              <a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn" target="_blank" rel="noopener">Leave A Review</a>
-            </div>
+            <ReviewsSlider items={reviews} action={<a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn" target="_blank" rel="noopener">Leave A Review</a>} />
           </div>
-          <div className="photo" style={{ backgroundImage: 'url(/images/site/rv-parks-3.jpg)' }} />
         </div>
       </section>
     </>

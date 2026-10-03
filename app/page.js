@@ -83,17 +83,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="l-section">
+      <section className="l-section reviews-sec">
+        <div className="reviews-photo" style={{ backgroundImage: 'url(/images/site/rv-parks-3.jpg)' }} />
         <div className="l-section-h reviews">
           <div className="left">
             <p className="eyebrow">Don’t Just Take Our Word For It</p>
             <h3 className="sec-title">Our Latest Reviews</h3>
-            <ReviewsSlider items={reviews} />
-            <div style={{ textAlign: 'right' }}>
-              <a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn" target="_blank" rel="noopener">Leave A Review</a>
-            </div>
+            <ReviewsSlider items={reviews} action={<a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn" target="_blank" rel="noopener">Leave A Review</a>} />
           </div>
-          <div className="photo" style={{ backgroundImage: 'url(/images/site/rv-parks-3.jpg)' }} />
         </div>
       </section>
     </>
