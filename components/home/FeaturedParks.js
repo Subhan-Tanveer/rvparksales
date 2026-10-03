@@ -5,7 +5,7 @@ import Link from 'next/link';
 // Featured parks: large photo cards in a sideways row (drag, swipe, or use the
 // arrows). Each card tilts in 3D toward the mouse (see Motion.js .feat-card).
 const money = (n) => (n ? `$${Number(n).toLocaleString('en-US')}` : 'Call for price');
-const thumb = (src) => (/^https:\/\/www\.rvparksales\.com\//.test(src) ? `/_next/image?url=${encodeURIComponent(src)}&w=828&q=75` : src);
+const thumb = (src) => (/^(https:\/\/www\.rvparksales\.com\/|\/media\/)/.test(src) ? `/_next/image?url=${encodeURIComponent(src)}&w=828&q=75` : src);
 
 export default function FeaturedParks({ items }) {
   const track = useRef(null);

@@ -820,3 +820,7 @@ body { overflow: visible !important; }
   .ct-logo { width: 130px; }
   .ct-label { font-size: 11vw; }
 }
+
+/* About Us text comes from the admin: buttons side by side */
+.about-copy p:has(> a.btn) { display: inline-block; margin: 0 10px 14px 0; }
+.about-copy h3 { margin: 0 0 18px; }

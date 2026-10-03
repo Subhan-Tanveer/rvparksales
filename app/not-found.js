@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import SiteShell from '@/components/SiteShell';
 
 export const metadata = { title: 'Page not found' };
 
 // 404 with a floating 3D "404" and quick ways back into the site.
 export default function NotFound() {
   return (
+    <SiteShell>
     <section className="nf">
       <span className="h-orb a" aria-hidden="true" /><span className="h-orb b" aria-hidden="true" />
       <div className="l-section-h nf-in">
@@ -17,5 +19,6 @@ export default function NotFound() {
         </div>
       </div>
     </section>
+    </SiteShell>
   );
 }

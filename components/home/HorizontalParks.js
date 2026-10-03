@@ -6,7 +6,7 @@ import Link from 'next/link';
 // still and scrolling down slides the park cards across (photos drift inside
 // their frames); on phones it is a normal swipeable row.
 const money = (n) => (n ? `$${Number(n).toLocaleString('en-US')}` : 'Call for price');
-const thumb = (src) => (/^https:\/\/www\.rvparksales\.com\//.test(src) ? `/_next/image?url=${encodeURIComponent(src)}&w=1080&q=75` : src);
+const thumb = (src) => (/^(https:\/\/www\.rvparksales\.com\/|\/media\/)/.test(src) ? `/_next/image?url=${encodeURIComponent(src)}&w=1080&q=75` : src);
 
 export default function HorizontalParks({ items, total }) {
   const root = useRef(null);
