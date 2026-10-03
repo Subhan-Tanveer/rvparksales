@@ -226,3 +226,5 @@ section:has(.reviews-grid) { background: var(--bg-alt); }
   .l-row img, .l-row .noimg { width: 72px; height: 72px; }
   .sell-stats { overflow: hidden; padding-bottom: 34px; }
 }
+html { overflow-x: clip; }
+@media (max-width: 700px) { .l-top { flex-wrap: wrap; } .l-top h3 { overflow-wrap: anywhere; } .l-body { min-width: 0; flex: 1 1 180px; } }
