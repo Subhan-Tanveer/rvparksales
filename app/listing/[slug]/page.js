@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ListingGallery from '@/components/ListingGallery';
 import ListingPopups from '@/components/ListingPopups';
-import { allListings, listingBySlug, pageBySlug, textOf, metaTitle, SITE } from '@/lib/content';
+import { allListings, listingBySlug, textOf, metaTitle, SITE } from '@/lib/content';
 
 export function generateStaticParams() { return allListings().map((l) => ({ slug: l.slug })); }
 
@@ -25,7 +25,7 @@ const PIN = 'M172.3 501.7C27 291 0 269.4 0 192 0 86 86 0 192 0s192 86 192 192c0 
 
 // Same order and layout as the old listing page: photo band, title + price,
 // status bar, photo carousel, Details, Description, map, previous/next;
-// sidebar with the broker, Get More Information / Offering Memo, and sharing.
+// sidebar with the broker, Get More Information, and sharing.
 export default async function ListingPage({ params }) {
   const { slug } = await params;
   const l = listingBySlug(slug);
@@ -33,7 +33,6 @@ export default async function ListingPage({ params }) {
   const photos = l.images.length ? l.images : (l.featuredImage ? [l.featuredImage] : []);
   const url = `${SITE.url}/listing/${l.slug}/`;
   const enc = encodeURIComponent;
-  const nda = pageBySlug('confidentiality-and-non-disclosure-agreement');
 
   const details = [
     ['Number of Sites: ', l.sites],
@@ -134,7 +133,6 @@ export default async function ListingPage({ params }) {
               <div className="side-btns">
                 <button type="button" className="btn btn-block trigger-contact-popup">Get More Information</button>
                 {l.sellerName === 'Marie Hansen' && <button type="button" className="btn btn-block buyer-consultation">Schedule a Call</button>}
-                <button type="button" className="btn btn-block trigger-memo-popup">Request Offering Memo</button>
               </div>
               <hr className="hr-line" />
               <h3>Share Listing</h3>
@@ -151,7 +149,7 @@ export default async function ListingPage({ params }) {
         </div>
       </section>
       <div className="mobile-cta"><button type="button" className="btn btn-block trigger-contact-popup">Get More Information</button></div>
-      <ListingPopups title={l.title} url={url} ndaHtml={nda?.contentHtml || ''} />
+      <ListingPopups title={l.title} url={url} />
     </>
   );
 }

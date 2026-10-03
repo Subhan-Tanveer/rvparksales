@@ -9,7 +9,9 @@ export const metadata = {
 
 // Same three lists as the old HTML sitemap: Pages, Posts (by category), Listings.
 export default function SitemapPage() {
-  const pageList = [...pages()].sort((a, b) => b.wpId - a.wpId);
+  // The Offering Memorandum was retired (Marie, Oct 2026), so it and its NDA are not listed.
+  const RETIRED = new Set(['offering-memorandum', 'confidentiality-and-non-disclosure-agreement']);
+  const pageList = [...pages()].filter((p) => !RETIRED.has(p.slug)).sort((a, b) => b.wpId - a.wpId);
   return (
     <>
       <PageBand title="Sitemap" />

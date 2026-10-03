@@ -7,7 +7,7 @@ import { posts, pages, postBySlug, pageBySlug, categoryLinks, textOf, metaTitle,
 // Blog posts and ordinary pages both live at the root (/some-slug/) on the old
 // WordPress site, so they share this one route and keep their exact addresses.
 // Pages that have their own designed route are listed here so they are skipped.
-const HANDLED_ELSEWHERE = new Set(['home', 'sitemap', 'my-account', 'contact', 'reviews', 'blog-buying-and-selling-rv-parks', 'sell-my-rv-park', 'offering-memorandum', 'about-selling-an-rv-park', 'faq']);
+const HANDLED_ELSEWHERE = new Set(['home', 'sitemap', 'my-account', 'contact', 'reviews', 'blog-buying-and-selling-rv-parks', 'sell-my-rv-park', 'offering-memorandum', 'confidentiality-and-non-disclosure-agreement', 'about-selling-an-rv-park', 'faq']);
 
 export function generateStaticParams() {
   return [

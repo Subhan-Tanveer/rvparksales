@@ -28,6 +28,9 @@ const nextConfig = {
     return [
       { source: '/blog/', destination: '/blog-buying-and-selling-rv-parks/', permanent: true },
       { source: '/my-account/', destination: '/', permanent: true },
+      // Offering memorandums were retired (Marie, Oct 2026): old links go to the listings.
+      { source: '/offering-memorandum/', destination: '/listings/?_listing_status=for-sale', permanent: true },
+      { source: '/confidentiality-and-non-disclosure-agreement/', destination: '/listings/?_listing_status=for-sale', permanent: true },
       ...oldDeadListingRedirects(),
     ];
   },
