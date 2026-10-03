@@ -36,7 +36,7 @@ export default function PersonPage({ person, kind }) {
   const url = `${SITE.url}/${kind}/${person.slug}/`;
   return (
     <>
-      <PageBand image={person.photo || undefined} />
+      <PageBand image="/images/site/rv-parks-1.jpg" />
       <section className="l-section">
         <div className="l-section-h detail">
           <div className="detail-main">

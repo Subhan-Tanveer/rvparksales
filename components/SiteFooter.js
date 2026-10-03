@@ -34,7 +34,7 @@ export default function SiteFooter() {
           <div className="f-line" />
           <ul>
             {states.map((s) => (
-              <li key={s}><Link href={`/listing-state/${slugify(s)}/`}>{s} RV Parks and Campgrounds&nbsp;<b>{counts[s]}</b></Link></li>
+              <li key={s}><Link href={`/listing-state/${slugify(s)}/`}>{s}<span className="f-long"> RV Parks and Campgrounds</span>&nbsp;<b>{counts[s]}</b></Link></li>
             ))}
           </ul>
           <div className="f-line" />

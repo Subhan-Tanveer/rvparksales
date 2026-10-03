@@ -93,7 +93,7 @@ export default function Motion() {
             const next = cards[i + 1];
             if (!next) return;
             gsap.to(card, { scale: 0.9 - (cards.length - i) * 0.01, filter: 'brightness(0.55)', ease: 'none',
-              scrollTrigger: { trigger: next, start: 'top bottom', end: 'top 20%', scrub: true } });
+              scrollTrigger: { trigger: next, start: 'top 55%', end: 'top 15%', scrub: true } });
           });
         });
         // Layers drifting at their own speed (scattered cards, floating art).

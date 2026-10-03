@@ -30,7 +30,7 @@ export default function BrandScene({ items }) {
         const tl = gsap.timeline({
           defaults: { ease: 'none' },
           scrollTrigger: {
-            trigger: el, start: 'top top', end: () => `+=${innerHeight * (slides.length - 0.4) * 1.1}`,
+            trigger: el, start: 'top top', end: () => `+=${innerHeight * (slides.length - 0.4) * (innerWidth < 700 ? 0.8 : 1.1)}`,
             pin: '.bs-pin', scrub: 0.8, anticipatePin: 1, invalidateOnRefresh: true,
             onUpdate: (self) => {
               if (bar) bar.style.transform = `scaleX(${self.progress})`;
@@ -44,13 +44,13 @@ export default function BrandScene({ items }) {
         slides.forEach((s, i) => {
           if (i === 0) return;
           const at = i * 1.2 - 0.2;
-          tl.to(panels[i - 1], { autoAlpha: 0, y: -80, duration: 0.35 }, at)
+          tl.to(panels[i - 1], { autoAlpha: 0, y: -60, duration: 0.3 }, at)
             .to(words[i - 1], { autoAlpha: 0, xPercent: -50, duration: 0.5 }, at)
             .to(slides[i - 1].querySelector('.bs-photo'), { scale: 1.12, filter: 'brightness(0.4)', duration: 1 }, at)
             .to(s, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1, ease: 'power2.inOut' }, at)
             .fromTo(s.querySelector('.bs-photo'), { scale: 1.45 }, { scale: 1, duration: 1.3 }, at)
             .to(words[i], { autoAlpha: 1, xPercent: -20, duration: 1.3 }, at + 0.2)
-            .to(panels[i], { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power3.out' }, at + 0.55);
+            .to(panels[i], { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power3.out' }, at + 0.32);
         });
         tl.to({}, { duration: 0.4 });
       }, el);
