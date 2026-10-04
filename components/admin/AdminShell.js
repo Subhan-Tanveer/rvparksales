@@ -15,19 +15,33 @@ export const ICONS = {
   ext: 'M14 3v2h3.6l-9.8 9.8 1.4 1.4L19 6.4V10h2V3zm5 16H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2z',
   out: 'M10 17l1.4-1.4L8.8 13H20v-2H8.8l2.6-2.6L10 7l-5 5zM4 5h8V3H4a2 2 0 00-2 2v14a2 2 0 002 2h8v-2H4z',
   plus: 'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z',
+  dollar: 'M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z',
+  megaphone: 'M3 10v4a1 1 0 001 1h2l4 5h2v-5l8 4V5l-8 4H4a1 1 0 00-1 1z',
 };
 export const Icon = ({ name }) => <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d={ICONS[name]} /></svg>;
 
+// Grouped by website: everything Marie runs is managed from this one admin.
 const NAV = [
-  ['/admin/', 'Dashboard', 'dash'],
-  ['/admin/listings/', 'Listings', 'home'],
-  ['/admin/posts/', 'Blog posts', 'pen'],
-  ['/admin/categories/', 'Blog categories', 'tag'],
-  ['/admin/pages/', 'Pages (About Us…)', 'file'],
-  ['/admin/testimonials/', 'Reviews', 'star'],
-  ['/admin/faq/', 'FAQ', 'help'],
-  ['/admin/brokers/', 'Brokers', 'user'],
-  ['/admin/developers/', 'Developers', 'user'],
+  [null, [['/admin/', 'Dashboard', 'dash']]],
+  ['RVParkSales.com', [
+    ['/admin/listings/', 'Listings', 'home'],
+    ['/admin/posts/', 'Blog posts', 'pen'],
+    ['/admin/categories/', 'Blog categories', 'tag'],
+    ['/admin/pages/', 'Pages (About Us…)', 'file'],
+    ['/admin/testimonials/', 'Reviews', 'star'],
+    ['/admin/faq/', 'FAQ', 'help'],
+    ['/admin/brokers/', 'Brokers', 'user'],
+    ['/admin/developers/', 'Developers', 'user'],
+  ]],
+  ['RVParkSelect.com', [
+    ['/admin/select-listings/', 'Listings', 'home'],
+    ['/admin/select-members/', 'Members', 'user'],
+    ['/admin/select-brokers/', 'Brokers', 'user'],
+    ['/admin/select-lenders/', 'Lenders', 'dollar'],
+  ]],
+  ['RVParkAds.com', [
+    ['/admin/ads-listings/', 'Seller listings', 'megaphone'],
+  ]],
 ];
 
 export default function AdminShell({ children }) {
@@ -51,8 +65,13 @@ export default function AdminShell({ children }) {
       <aside className={`adm-side ${open ? 'open' : ''}`}>
         <div className="adm-logo"><img src="/images/logo-light.png" alt="RVParkSales" /><span>Admin</span></div>
         <nav className="adm-nav">
-          {NAV.map(([href, label, icon]) => (
-            <Link key={href} href={href} className={on(href) ? 'on' : ''}><Icon name={icon} />{label}</Link>
+          {NAV.map(([group, links]) => (
+            <div key={group || 'top'}>
+              {group && <div className="adm-nav-h">{group}</div>}
+              {links.map(([href, label, icon]) => (
+                <Link key={href} href={href} className={on(href) ? 'on' : ''}><Icon name={icon} />{label}</Link>
+              ))}
+            </div>
           ))}
         </nav>
         <div className="adm-side-foot">

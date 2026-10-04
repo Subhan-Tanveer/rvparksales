@@ -20,14 +20,50 @@ export default function Field({ f, item, set, extra, name }) {
       return wrap(<input id={id} type="number" inputMode="decimal" min="0" step="any" value={v ?? ''} placeholder={f.placeholder} onChange={(e) => set(f.key, e.target.value)} />);
     case 'textarea':
       return wrap(<textarea id={id} rows={f.rows || 4} value={v ?? ''} onChange={(e) => set(f.key, e.target.value)} />);
-    case 'select':
+    case 'select': {
+      // Options can come from live data, e.g. the RVParkSelect broker list.
+      const options = f.optionsFrom
+        ? [['', f.emptyLabel || 'None'], ...(extra?.[f.optionsFrom] || []).map((x) => [String(x.id), x.name])]
+        : f.options;
       return wrap(
         <select id={id} value={v ?? ''} onChange={(e) => set(f.key, e.target.value)}>
-          {!f.options.some(([o]) => o === (v ?? '')) && <option value={v ?? ''}>{v || 'Choose…'}</option>}
-          {f.options.map(([o, t]) => <option key={o} value={o}>{t}</option>)}
+          {!options.some(([o]) => o === (v ?? '')) && <option value={v ?? ''}>{v || 'Choose…'}</option>}
+          {options.map(([o, t]) => <option key={o} value={o}>{t}</option>)}
         </select>,
         f.hint,
       );
+    }
+    case 'money': {
+      // Stored in cents (RVParkSelect / RVParkAds), typed in dollars.
+      const dollars = v == null || v === '' ? '' : String(Math.round(Number(v) / 100));
+      return wrap(
+        <div className="af-slug"><span>$</span><input id={id} type="text" inputMode="numeric" value={dollars ? Number(dollars).toLocaleString('en-US') : ''} placeholder={f.placeholder || '0'} onChange={(e) => { const n = e.target.value.replace(/[^0-9]/g, ''); set(f.key, n ? Number(n) * 100 : null); }} /></div>,
+      );
+    }
+    case 'toggle':
+      return (
+        <div className={`af ${f.wide ? 'wide' : ''}`}>
+          <label className="af-toggle"><input id={id} type="checkbox" checked={!!v} onChange={(e) => set(f.key, e.target.checked)} /><span>{f.label}</span></label>
+        </div>
+      );
+    case 'checks':
+      return (
+        <div className={`af ${f.wide ? 'wide' : ''}`}>
+          <span className="af-label">{f.label}</span>
+          <div className="chips">
+            {f.options.map((o) => {
+              const on = (v || []).includes(o);
+              return <button type="button" key={o} className={`chip ${on ? 'on' : ''}`} onClick={() => set(f.key, on ? v.filter((x) => x !== o) : [...(v || []), o])}>{on ? '✓ ' : ''}{o}</button>;
+            })}
+          </div>
+        </div>
+      );
+    case 'lines':
+      return wrap(<textarea id={id} rows={3} value={(v || []).join(String.fromCharCode(10))} onChange={(e) => set(f.key, e.target.value.split(String.fromCharCode(10)).map((x) => x.trim()).filter(Boolean))} />, 'One link per line.');
+    case 'readonly':
+      return <div className={`af ${f.wide ? 'wide' : ''}`}><span className="af-label">{f.label}</span><div className="af-ro">{show(v, f.format)}</div></div>;
+    case 'file':
+      return wrap(<FileField value={v} onChange={(u) => set(f.key, u)} folder={name} accept={f.accept} />);
     case 'date': {
       const val = String(v || '').replace(' ', 'T').slice(0, f.dateOnly ? 10 : 16);
       return wrap(<input id={id} type={f.dateOnly ? 'date' : 'datetime-local'} value={val} onChange={(e) => set(f.key, f.dateOnly ? e.target.value : `${e.target.value.replace('T', ' ')}:00`)} />);
@@ -67,6 +103,40 @@ export default function Field({ f, item, set, extra, name }) {
     default:
       return null;
   }
+}
+
+// Read-only values (members, lenders, seller info).
+function show(v, format) {
+  if (v == null || v === '' || (Array.isArray(v) && !v.length)) return <span className="af-hint">—</span>;
+  if (format === 'images') return <div className="af-gallery">{v.map((u) => <div key={u} className="af-ph"><img src={u} alt="" loading="lazy" /></div>)}</div>;
+  if (format === 'money') return `$${Math.round(Number(v) / 100).toLocaleString('en-US')}`;
+  if (format === 'date') return new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+  if (Array.isArray(v)) return v.join(', ');
+  if (typeof v === 'string' && /^https?:\/\//.test(v)) return <a href={v} target="_blank" rel="noopener" style={{ color: '#1f9ccb' }}>{v}</a>;
+  return String(v);
+}
+
+// PDF / document upload (e.g. a listing's info packet).
+function FileField({ value, onChange, folder, accept }) {
+  const input = useRef(null);
+  const [pct, setPct] = useState(null);
+  async function pick(e) {
+    const f = e.target.files?.[0]; e.target.value = '';
+    if (!f) return;
+    setPct(0);
+    try { onChange(await uploadImage(f, folder, setPct)); } catch (err) { alert(err.message); }
+    setPct(null);
+  }
+  return (
+    <div className="af-img">
+      {value ? <a href={value} target="_blank" rel="noopener" className="ab ab-sm">Open current file ↗</a> : <span className="af-hint">No file yet.</span>}
+      <button type="button" className="ab" onClick={() => input.current?.click()}>{value ? 'Replace file' : 'Upload file'}</button>
+      {value && <button type="button" className="ab ab-danger" onClick={() => onChange(null)}>Remove</button>}
+      {pct !== null && <span className="af-progress">Uploading… {pct}%</span>}
+      <input ref={input} type="file" accept={accept || 'application/pdf'} hidden onChange={pick} />
+    </div>
+  );
 }
 
 function ImageField({ value, onChange, folder }) {

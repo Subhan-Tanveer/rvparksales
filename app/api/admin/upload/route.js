@@ -14,7 +14,7 @@ export async function POST(req) {
       onBeforeGenerateToken: async (pathname) => {
         if (!pathname.startsWith('uploads/')) throw new Error('Bad upload path');
         return {
-          allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'],
+          allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif', 'application/pdf'],
           maximumSizeInBytes: 25 * 1024 * 1024,
           addRandomSuffix: true,
         };

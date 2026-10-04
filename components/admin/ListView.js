@@ -4,39 +4,46 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SCHEMAS } from '@/lib/admin-schema';
 import { Icon } from '@/components/admin/AdminShell';
-import { api, Toast } from '@/components/admin/util';
+import { source, Toast } from '@/components/admin/util';
 
 const money = (n) => (n ? `$${Number(n).toLocaleString('en-US')}` : '—');
+const cents = (n) => (n ? `$${Math.round(Number(n) / 100).toLocaleString('en-US')}` : '—');
 const VIS = { publish: ['Published', 'pill-green'], offmarket: ['Off-market (Select only)', 'pill-blue'], draft: ['Hidden', 'pill-amber'], private: ['Private', 'pill-gray'] };
-const STAT = { 'For Sale': 'pill-green', Sold: 'pill-blue', Archived: 'pill-gray' };
+const STAT = { 'For Sale': 'pill-green', Sold: 'pill-blue', Archived: 'pill-gray', approved: 'pill-green', pending: 'pill-amber', rejected: 'pill-gray', verified: 'pill-green', submitted: 'pill-amber' };
+const SELECTVIS = { 'Draft (hidden)': 'pill-amber', 'Off-market': 'pill-blue', 'Early access': 'pill-green', Public: 'pill-green' };
 
-// One admin section: searchable table of everything in a collection.
+// One admin section: searchable table of everything in a collection, here or
+// on RVParkSelect / RVParkAds.
 export default function ListView({ name }) {
   const schema = SCHEMAS[name];
+  const src = useMemo(() => source(name, schema), [name, schema]);
   const router = useRouter();
   const [items, setItems] = useState(null);
   const [q, setQ] = useState('');
   const [f, setF] = useState({});
   const [toast, setToast] = useState(null);
+  const canCreate = schema.canCreate !== false;
+  const canDelete = schema.canDelete !== false;
 
-  const load = () => api(name).then((d) => setItems(d.items)).catch((e) => setToast({ err: true, text: e.message }));
-  useEffect(() => { load(); }, [name]);
+  const load = () => src.list().then((d) => setItems(d.items)).catch((e) => { setItems([]); setToast({ err: true, text: e.message }); });
+  useEffect(() => { load(); }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const shown = useMemo(() => {
     if (!items) return [];
-    let list = items.filter((it) => Object.entries(f).every(([k, v]) => !v || (it[k] || '') === v));
+    let list = items.filter((it) => Object.entries(f).every(([k, v]) => !v || String(it[k] ?? '') === v));
     if (q.trim()) {
       const words = q.toLowerCase().split(/\s+/);
-      list = list.filter((it) => { const t = JSON.stringify([it.title, it.name, it.q, it.quote, it.city, it.state, it.slug]).toLowerCase(); return words.every((w) => t.includes(w)); });
+      list = list.filter((it) => { const t = JSON.stringify([it.title, it.name, it.q, it.quote, it.city, it.state, it.slug, it.listingName, it.listingAddress, it.email, it.sellerName, it.companyName, it.contactName]).toLowerCase(); return words.every((w) => t.includes(w)); });
     }
     return schema.sort && !schema.ordered ? [...list].sort(schema.sort) : list;
   }, [items, q, f, schema]);
 
   async function remove(it, e) {
     e.stopPropagation();
-    const label = it.title || it.name || it.q || 'this item';
-    if (!confirm(`Delete “${label}”? This cannot be undone from here (a backup copy is kept).`)) return;
-    try { await api(name, { method: 'DELETE', query: `id=${encodeURIComponent(it.id)}` }); setToast({ text: 'Deleted' }); load(); } catch (err) { setToast({ err: true, text: err.message }); }
+    const label = it.title || it.name || it.q || it.listingName || it.companyName || 'this item';
+    const where = schema.site === 'select' ? ' from RVParkSelect.com' : '';
+    if (!confirm(`Delete “${label}”${where}? ${schema.remote ? 'This cannot be undone.' : 'A backup copy is kept.'}`)) return;
+    try { await src.remove(it); setToast({ text: 'Deleted' }); load(); } catch (err) { setToast({ err: true, text: err.message }); }
   }
 
   async function move(it, dir, e) {
@@ -46,16 +53,22 @@ export default function ListView({ name }) {
     if (j < 0 || j >= ids.length) return;
     [ids[i], ids[j]] = [ids[j], ids[i]];
     setItems(ids.map((id) => items.find((x) => x.id === id)));
-    try { await api(name, { method: 'PUT', body: { order: ids } }); setToast({ text: 'Order saved' }); } catch (err) { setToast({ err: true, text: err.message }); load(); }
+    try { await src.reorder(ids); setToast({ text: 'Order saved' }); } catch (err) { setToast({ err: true, text: err.message }); load(); }
   }
 
   const cell = (it, [key, label]) => {
     const v = it[key];
-    if (label === 'thumb') return v ? <img className={`adm-thumb ${name === 'brokers' || name === 'developers' ? 'round' : ''}`} src={v} alt="" loading="lazy" /> : <span className="adm-thumb" />;
+    if (label === 'thumb') {
+      const u = Array.isArray(v) ? v[0] : v;
+      return u ? <img className={`adm-thumb ${/brokers|developers/.test(name) ? 'round' : ''}`} src={u} alt="" loading="lazy" /> : <span className="adm-thumb" />;
+    }
     if (key === 'publishState') { const [t, c] = VIS[v || 'publish'] || [v, 'pill-gray']; return <span className={`pill ${c}`}>{t}</span>; }
-    if (key === 'status') return v ? <span className={`pill ${STAT[v] || 'pill-gray'}`}>{v}</span> : '—';
+    if (key === '_visibility') return <span className={`pill ${SELECTVIS[v] || 'pill-gray'}`}>{v}</span>;
+    if (key === 'status' || key === 'pofStatus') return v ? <span className={`pill ${STAT[v] || 'pill-gray'}`}>{v}</span> : '—';
+    if (key === 'subscriptionActive') return <span className={`pill ${v ? 'pill-green' : 'pill-gray'}`}>{v ? 'Yes' : 'No'}</span>;
     if (key === 'priceUsd') return money(v);
-    if (key === 'date') return String(v || '').slice(0, 10) || '—';
+    if (key === 'askingPriceCents') return cents(v);
+    if (key === 'date' || key === 'createdAt') return String(v || '').slice(0, 10) || '—';
     if (key === 'quote') return <div className="t-clip">{v}</div>;
     if (key === 'slug') return <span className="t-clip">/{v}/</span>;
     return v || '—';
@@ -69,7 +82,7 @@ export default function ListView({ name }) {
           <h1>{schema.label}</h1>
           <p>{schema.blurb}</p>
         </div>
-        <Link href={`/admin/${name}/new/`} className="ab ab-accent"><Icon name="plus" />Add {schema.one.toLowerCase()}</Link>
+        {canCreate && <Link href={`/admin/${name}/new/`} className="ab ab-accent"><Icon name="plus" />Add {schema.one.toLowerCase()}</Link>}
       </div>
 
       <div className="adm-tools">
@@ -84,8 +97,8 @@ export default function ListView({ name }) {
         ))}
       </div>
 
-      {!items ? <p className="adm-count">Loading…</p> : shown.length === 0 ? (
-        <div className="adm-card adm-empty">Nothing here yet. <Link href={`/admin/${name}/new/`} style={{ color: '#1f9ccb' }}>Add the first one</Link>.</div>
+      {!items ? <p className="adm-count">Loading{schema.remote ? ` from ${schema.site === 'select' ? 'RVParkSelect' : 'RVParkAds'}` : ''}…</p> : shown.length === 0 ? (
+        <div className="adm-card adm-empty">Nothing here yet.{canCreate && <> <Link href={`/admin/${name}/new/`} style={{ color: '#1f9ccb' }}>Add the first one</Link>.</>}</div>
       ) : (
         <table className="adm-table">
           <thead>
@@ -101,11 +114,11 @@ export default function ListView({ name }) {
                 {schema.ordered && (
                   <td><div className="ord"><button type="button" aria-label="Move up" onClick={(e) => move(it, -1, e)}>▲</button><button type="button" aria-label="Move down" onClick={(e) => move(it, 1, e)}>▼</button></div></td>
                 )}
-                {schema.columns.map((c, k) => <td key={c[0]} className={`${k > 1 ? 'hide-sm' : ''} ${c[0] === 'title' || c[0] === 'name' || c[0] === 'q' ? 't-title' : ''}`} style={c[1] === 'thumb' ? { width: 70 } : undefined}>{cell(it, c)}</td>)}
+                {schema.columns.map((c, k) => <td key={c[0]} className={`${k > 1 ? 'hide-sm' : ''} ${['title', 'name', 'q', 'listingName', 'companyName'].includes(c[0]) ? 't-title' : ''}`} style={c[1] === 'thumb' ? { width: 70 } : undefined}>{cell(it, c)}</td>)}
                 <td>
                   <div className="adm-actions">
                     <a className="ab ab-sm hide-sm" href={schema.path(it)} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()}>View</a>
-                    <button type="button" className="ab ab-sm ab-danger" onClick={(e) => remove(it, e)}>Delete</button>
+                    {canDelete && <button type="button" className="ab ab-sm ab-danger" onClick={(e) => remove(it, e)}>Delete</button>}
                   </div>
                 </td>
               </tr>

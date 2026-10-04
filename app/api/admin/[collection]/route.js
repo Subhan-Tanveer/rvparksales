@@ -50,7 +50,7 @@ export async function POST(req, { params }) {
   if (!(await isAdmin(req))) return deny();
   const { collection: name } = await params;
   const schema = SCHEMAS[name];
-  if (!schema) return bad('Unknown section', 404);
+  if (!schema || schema.remote) return bad('Unknown section', 404);
   const { item } = await req.json().catch(() => ({}));
   if (!item || typeof item !== 'object') return bad('Nothing to save');
 
@@ -108,7 +108,7 @@ export async function POST(req, { params }) {
 export async function PUT(req, { params }) {
   if (!(await isAdmin(req))) return deny();
   const { collection: name } = await params;
-  if (!SCHEMAS[name]) return bad('Unknown section', 404);
+  if (!SCHEMAS[name] || SCHEMAS[name].remote) return bad('Unknown section', 404);
   const { order } = await req.json().catch(() => ({}));
   if (!Array.isArray(order)) return bad('Nothing to reorder');
   const list = await load(name);
@@ -121,7 +121,7 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   if (!(await isAdmin(req))) return deny();
   const { collection: name } = await params;
-  if (!SCHEMAS[name]) return bad('Unknown section', 404);
+  if (!SCHEMAS[name] || SCHEMAS[name].remote) return bad('Unknown section', 404);
   const id = new URL(req.url).searchParams.get('id');
   const list = await load(name);
   const gone = list.find((x) => x.id === id);
