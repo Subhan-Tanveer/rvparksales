@@ -13,6 +13,7 @@ function selectToast(select) {
   const base = 'Saved. The website updates in a few seconds.';
   if (!select || select.skipped) return { text: base };
   if (!select.ok) return { err: true, text: `Saved on RVParkSales.com, but RVParkSelect could not be updated: ${select.error}. Save again to retry.` };
+  if (!select.visibility) return { text: `${base} RVParkSelect updated too.` };
   if (select.visibility === 'public') return { text: `${base} Also live on RVParkSelect for members.${select.alerted ? ' Matching members were emailed.' : ''}` };
   if (select.visibility === 'offmarket') return { text: `Saved as off-market: hidden on RVParkSales.com, shown to RVParkSelect members.${select.alerted ? ' Matching members were emailed.' : ''}` };
   return { text: `${base} Hidden on RVParkSelect.` };

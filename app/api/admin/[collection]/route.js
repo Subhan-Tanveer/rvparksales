@@ -3,7 +3,7 @@ import { isAdmin } from '@/lib/auth';
 import { COLLECTIONS, readFresh, writeCollection } from '@/lib/store';
 import { cleanHtml, autop } from '@/lib/content';
 import { SCHEMAS, SOURCE, withIds, slugify } from '@/lib/admin-schema';
-import { syncListingToSelect, siteOrigin, applySyncResult } from '@/lib/select-sync';
+import { syncListingToSelect, syncBrokersToSelect, siteOrigin, applySyncResult } from '@/lib/select-sync';
 
 // The admin's data API, one collection at a time:
 //   GET     everything in the collection (rich text cleaned up for the editor)
@@ -90,6 +90,7 @@ export async function POST(req, { params }) {
   if (name === 'categories' && clean.parent === '') clean.parent = null;
 
   const i = list.findIndex((x) => x.id === clean.id);
+  const renamedFrom = name === 'brokers' && i >= 0 && list[i].name !== clean.name ? list[i].name : null;
   if (i >= 0) list[i] = { ...list[i], ...clean, updatedAt: new Date().toISOString() };
   else {
     clean.id = clean.id || `${name}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -107,6 +108,17 @@ export async function POST(req, { params }) {
   if (name === 'listings') {
     select = await syncListingToSelect(saved, { origin: siteOrigin(req.url) });
     if (applySyncResult(saved, select)) await writeCollection(name, list).catch(() => {});
+  }
+  if (name === 'brokers') {
+    // A renamed broker stays on the listings that name them.
+    if (renamedFrom) {
+      const ls = await load('listings');
+      let n = 0;
+      ls.forEach((l) => { if (l.sellerName === renamedFrom) { l.sellerName = saved.name; l.sellerImage = saved.photo || l.sellerImage; n++; } });
+      if (n) await writeCollection('listings', ls).catch(() => {});
+    }
+    // One broker list for every site: RVParkSelect gets the same roster.
+    select = await syncBrokersToSelect(list, { origin: siteOrigin(req.url) });
   }
   return NextResponse.json({ ok: true, item: saved, select });
 }
@@ -134,7 +146,9 @@ export async function DELETE(req, { params }) {
   const next = list.filter((x) => x.id !== id);
   if (!gone) return bad('Not found', 404);
   try { await writeCollection(name, next); } catch (e) { return bad(e.message, 500); }
-  // A deleted listing is hidden on RVParkSelect too (kept there as a draft).
-  const select = name === 'listings' ? await syncListingToSelect(gone, { origin: siteOrigin(req.url), removed: true }) : undefined;
+  // A deleted listing is hidden on RVParkSelect too (kept there as a draft);
+  // a deleted broker leaves RVParkSelect's roster as well.
+  const select = name === 'listings' ? await syncListingToSelect(gone, { origin: siteOrigin(req.url), removed: true })
+    : name === 'brokers' ? await syncBrokersToSelect(next, { origin: siteOrigin(req.url) }) : undefined;
   return NextResponse.json({ ok: true, select });
 }
