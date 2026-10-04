@@ -26,6 +26,7 @@ export default function Field({ f, item, set, extra, name }) {
           {!f.options.some(([o]) => o === (v ?? '')) && <option value={v ?? ''}>{v || 'Choose…'}</option>}
           {f.options.map(([o, t]) => <option key={o} value={o}>{t}</option>)}
         </select>,
+        f.hint,
       );
     case 'date': {
       const val = String(v || '').replace(' ', 'T').slice(0, f.dateOnly ? 10 : 16);

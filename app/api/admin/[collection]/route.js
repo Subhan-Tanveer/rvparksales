@@ -3,6 +3,7 @@ import { isAdmin } from '@/lib/auth';
 import { COLLECTIONS, readFresh, writeCollection } from '@/lib/store';
 import { cleanHtml, autop } from '@/lib/content';
 import { SCHEMAS, withIds, slugify } from '@/lib/admin-schema';
+import { syncListingToSelect, siteOrigin } from '@/lib/select-sync';
 
 // The admin's data API, one collection at a time:
 //   GET     everything in the collection (rich text cleaned up for the editor)
@@ -33,6 +34,8 @@ export async function GET(req, { params }) {
     const out = { ...it };
     // Imported posts/pages were all live on the old site.
     if ((name === 'posts' || name === 'pages') && !out.publishState) out.publishState = 'publish';
+    // Listings have Public / Off-market / Private draft; old "private" ones are drafts.
+    if (name === 'listings' && out.publishState === 'private') out.publishState = 'draft';
     HTML_FIELDS.forEach((k) => { if (typeof out[k] === 'string') out[k] = autop(cleanHtml(out[k])); });
     return out;
   });
@@ -96,7 +99,10 @@ export async function POST(req, { params }) {
   } catch (e) {
     return bad(e.message, 500);
   }
-  return NextResponse.json({ ok: true, item: list.find((x) => x.id === clean.id) });
+  const saved = list.find((x) => x.id === clean.id);
+  // Listings also go to RVParkSelect.com (members' early-access site).
+  const select = name === 'listings' ? await syncListingToSelect(saved, { origin: siteOrigin(req.url) }) : undefined;
+  return NextResponse.json({ ok: true, item: saved, select });
 }
 
 export async function PUT(req, { params }) {
@@ -118,8 +124,11 @@ export async function DELETE(req, { params }) {
   if (!SCHEMAS[name]) return bad('Unknown section', 404);
   const id = new URL(req.url).searchParams.get('id');
   const list = await load(name);
+  const gone = list.find((x) => x.id === id);
   const next = list.filter((x) => x.id !== id);
-  if (next.length === list.length) return bad('Not found', 404);
+  if (!gone) return bad('Not found', 404);
   try { await writeCollection(name, next); } catch (e) { return bad(e.message, 500); }
-  return NextResponse.json({ ok: true });
+  // A deleted listing is hidden on RVParkSelect too (kept there as a draft).
+  const select = name === 'listings' ? await syncListingToSelect(gone, { origin: siteOrigin(req.url), removed: true }) : undefined;
+  return NextResponse.json({ ok: true, select });
 }

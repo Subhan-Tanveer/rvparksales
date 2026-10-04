@@ -7,7 +7,7 @@ import { Icon } from '@/components/admin/AdminShell';
 import { api, Toast } from '@/components/admin/util';
 
 const money = (n) => (n ? `$${Number(n).toLocaleString('en-US')}` : '—');
-const VIS = { publish: ['Published', 'pill-green'], draft: ['Hidden', 'pill-amber'], private: ['Private', 'pill-gray'] };
+const VIS = { publish: ['Published', 'pill-green'], offmarket: ['Off-market (Select only)', 'pill-blue'], draft: ['Hidden', 'pill-amber'], private: ['Private', 'pill-gray'] };
 const STAT = { 'For Sale': 'pill-green', Sold: 'pill-blue', Archived: 'pill-gray' };
 
 // One admin section: searchable table of everything in a collection.

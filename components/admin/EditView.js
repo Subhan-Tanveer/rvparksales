@@ -6,6 +6,16 @@ import { SCHEMAS, slugify } from '@/lib/admin-schema';
 import Field from '@/components/admin/Fields';
 import { api, Toast } from '@/components/admin/util';
 
+// What the save did on RVParkSelect.com (listings only).
+function selectToast(select) {
+  const base = 'Saved. The website updates in a few seconds.';
+  if (!select || select.skipped) return { text: base };
+  if (!select.ok) return { err: true, text: `Saved on RVParkSales.com, but RVParkSelect could not be updated: ${select.error}. Save again to retry.` };
+  if (select.visibility === 'public') return { text: `${base} Also live on RVParkSelect for members.${select.alerted ? ' Matching members were emailed.' : ''}` };
+  if (select.visibility === 'offmarket') return { text: `Saved as off-market: hidden on RVParkSales.com, shown to RVParkSelect members.${select.alerted ? ' Matching members were emailed.' : ''}` };
+  return { text: `${base} Hidden on RVParkSelect.` };
+}
+
 // Add / edit one entry. The form comes from lib/admin-schema.js.
 export default function EditView({ name, id }) {
   const schema = SCHEMAS[name];
@@ -53,9 +63,9 @@ export default function EditView({ name, id }) {
       const slugF = schema.groups.flatMap((g) => g.fields).find((f) => f.type === 'slug');
       if (slugF && item._new && !item._slugTouched) body.slug = slugify(item[slugF.from]);
       delete body._slugTouched;
-      const { item: saved } = await api(name, { method: 'POST', body: { item: body } });
+      const { item: saved, select } = await api(name, { method: 'POST', body: { item: body } });
       setDirty(false);
-      setToast({ text: 'Saved. The website updates in a few seconds.' });
+      setToast(selectToast(select));
       if (isNew) router.replace(`/admin/${name}/${encodeURIComponent(saved.id)}/`);
       else setItem(saved);
     } catch (err) {
@@ -98,7 +108,8 @@ export default function EditView({ name, id }) {
           <div className="adm-card">
             <button type="submit" className="ab ab-primary" disabled={saving}>{saving ? 'Saving…' : isNew ? `Publish ${schema.one.toLowerCase()}` : 'Save changes'}</button>
             <span className={`adm-status ${dirty ? 'err' : 'ok'}`}>{dirty ? '● Unsaved changes' : isNew ? 'Not saved yet' : '✓ All changes saved'}</span>
-            {hidden && <span className="adm-status">This is hidden from visitors (Visibility is not “Published”).</span>}
+            {hidden && item.publishState === 'offmarket' && <span className="adm-status">Off-market: only RVParkSelect members can see this park.</span>}
+            {hidden && item.publishState !== 'offmarket' && <span className="adm-status">This is hidden from visitors (Visibility is not “Published”).</span>}
             {!isNew && <a className="ab" href={schema.path(item)} target="_blank" rel="noopener">View on website ↗</a>}
             {!isNew && <Link className="ab" href={`/admin/${name}/new/?copy=${encodeURIComponent(item.id)}`}>Duplicate</Link>}
             {!isNew && <button type="button" className="ab ab-danger" onClick={remove}>Delete</button>}
