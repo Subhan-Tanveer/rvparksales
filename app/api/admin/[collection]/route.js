@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { isAdmin } from '@/lib/auth';
 import { COLLECTIONS, readFresh, writeCollection } from '@/lib/store';
 import { cleanHtml, autop } from '@/lib/content';
-import { SCHEMAS, withIds, slugify } from '@/lib/admin-schema';
-import { syncListingToSelect, siteOrigin } from '@/lib/select-sync';
+import { SCHEMAS, SOURCE, withIds, slugify } from '@/lib/admin-schema';
+import { syncListingToSelect, siteOrigin, applySyncResult } from '@/lib/select-sync';
 
 // The admin's data API, one collection at a time:
 //   GET     everything in the collection (rich text cleaned up for the editor)
@@ -36,6 +36,7 @@ export async function GET(req, { params }) {
     if ((name === 'posts' || name === 'pages') && !out.publishState) out.publishState = 'publish';
     // Listings have Public / Off-market / Private draft; old "private" ones are drafts.
     if (name === 'listings' && out.publishState === 'private') out.publishState = 'draft';
+    if (name === 'listings') out._source = SOURCE[out.source || (out.wpId ? 'wordpress' : 'admin')];
     HTML_FIELDS.forEach((k) => { if (typeof out[k] === 'string') out[k] = autop(cleanHtml(out[k])); });
     return out;
   });
@@ -60,8 +61,8 @@ export async function POST(req, { params }) {
   if (missing.length) return bad(`Please fill in: ${missing.join(', ')}`);
 
   const list = await load(name);
-  const clean = { ...item };
-  delete clean._new;
+  // Keys starting with _ are screen-only (e.g. _source).
+  const clean = Object.fromEntries(Object.entries(item).filter(([k]) => !k.startsWith('_')));
 
   // Web address: from the title/name when empty; must be unique.
   const slugField = fields.find((f) => f.type === 'slug');
@@ -76,6 +77,7 @@ export async function POST(req, { params }) {
 
   // Derived values the site uses.
   if (name === 'listings') {
+    if (clean.publishState === 'early' && !clean.publicAt) clean.publicAt = new Date(Date.now() + 5 * 864e5).toISOString().slice(0, 10);
     clean.images = (clean.images || []).filter(Boolean);
     clean.featuredImage = clean.images[0] || null;
     ['priceUsd', 'sites', 'acres'].forEach((k) => { if (clean[k] === '') clean[k] = null; });
@@ -101,7 +103,11 @@ export async function POST(req, { params }) {
   }
   const saved = list.find((x) => x.id === clean.id);
   // Listings also go to RVParkSelect.com (members' early-access site).
-  const select = name === 'listings' ? await syncListingToSelect(saved, { origin: siteOrigin(req.url) }) : undefined;
+  let select;
+  if (name === 'listings') {
+    select = await syncListingToSelect(saved, { origin: siteOrigin(req.url) });
+    if (applySyncResult(saved, select)) await writeCollection(name, list).catch(() => {});
+  }
   return NextResponse.json({ ok: true, item: saved, select });
 }
 

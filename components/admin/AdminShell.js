@@ -24,7 +24,7 @@ export const Icon = ({ name }) => <svg viewBox="0 0 24 24" aria-hidden="true"><p
 const NAV = [
   [null, [['/admin/', 'Dashboard', 'dash']]],
   ['RVParkSales.com', [
-    ['/admin/listings/', 'Listings', 'home'],
+    ['/admin/listings/', 'Listings (all sites)', 'home'],
     ['/admin/posts/', 'Blog posts', 'pen'],
     ['/admin/categories/', 'Blog categories', 'tag'],
     ['/admin/pages/', 'Pages (About Us…)', 'file'],
@@ -34,13 +34,9 @@ const NAV = [
     ['/admin/developers/', 'Developers', 'user'],
   ]],
   ['RVParkSelect.com', [
-    ['/admin/select-listings/', 'Listings', 'home'],
     ['/admin/select-members/', 'Members', 'user'],
     ['/admin/select-brokers/', 'Brokers', 'user'],
     ['/admin/select-lenders/', 'Lenders', 'dollar'],
-  ]],
-  ['RVParkAds.com', [
-    ['/admin/ads-listings/', 'Seller listings', 'megaphone'],
   ]],
 ];
 

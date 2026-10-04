@@ -14,16 +14,12 @@ export default function Dashboard() {
   useEffect(() => {
     const safe = (p) => p.catch(() => null);
     Promise.all([
-      safe(remote('select', 'admin-listings')), safe(remote('select', 'admin-buyers')),
-      safe(remote('select', 'lenders', { query: 'all=1' })), safe(remote('ads', 'admin-listings')),
-    ]).then(([sl, sb, ln, al]) => setOther({
-      selectListings: sl?.listings?.length ?? '—',
-      selectDrafts: sl ? sl.listings.filter((l) => l.isDraft).length : 0,
+      safe(remote('select', 'admin-buyers')), safe(remote('select', 'lenders', { query: 'all=1' })),
+    ]).then(([sb, ln]) => setOther({
       members: sb ? sb.buyers.filter((b) => b.tierKey).length : '—',
       pof: sb ? sb.buyers.filter((b) => b.pofStatus === 'submitted').length : 0,
       lenders: ln?.lenders?.length ?? '—',
       lendersPending: ln ? ln.lenders.filter((l) => l.status === 'pending').length : 0,
-      ads: al?.listings?.length ?? '—',
     }));
   }, []);
   useEffect(() => {
@@ -36,7 +32,9 @@ export default function Dashboard() {
   const tiles = s ? [
     ['/admin/listings/', s.listings.forSale, 'Parks for sale', 'home'],
     ['/admin/listings/', s.listings.sold, 'Sold', 'home'],
-    ['/admin/listings/', s.listings.hidden, 'Hidden / off-market', 'home'],
+    ['/admin/listings/', s.listings.early, 'Early access (going public soon)', 'home'],
+    ['/admin/listings/', s.listings.offmarket, 'Off-market (RVParkSelect only)', 'home'],
+    ['/admin/listings/', s.listings.hidden, 'Private drafts / archived', 'home'],
     ['/admin/posts/', s.posts, 'Blog posts', 'pen'],
     ['/admin/testimonials/', s.testimonials, 'Reviews', 'star'],
     ['/admin/faq/', s.faq, 'FAQ questions', 'help'],
@@ -69,12 +67,10 @@ export default function Dashboard() {
       </div>
       {other && (
         <>
-          <h2 style={{ fontSize: '1.05rem', margin: '26px 0 12px' }}>RVParkSelect.com &amp; RVParkAds.com</h2>
+          <h2 style={{ fontSize: '1.05rem', margin: '26px 0 12px' }}>RVParkSelect.com</h2>
           <div className="adm-grid">
-            <Link href="/admin/select-listings/" className="adm-tile"><em><Icon name="home" />RVParkSelect listings</em><b>{other.selectListings}</b>{other.selectDrafts > 0 && <span>{other.selectDrafts} draft{other.selectDrafts === 1 ? '' : 's'} waiting to be published</span>}</Link>
             <Link href="/admin/select-members/" className="adm-tile"><em><Icon name="user" />Paying members</em><b>{other.members}</b>{other.pof > 0 && <span>{other.pof} proof{other.pof === 1 ? '' : 's'} of funds to check</span>}</Link>
             <Link href="/admin/select-lenders/" className="adm-tile"><em><Icon name="dollar" />Lenders</em><b>{other.lenders}</b>{other.lendersPending > 0 && <span>{other.lendersPending} waiting for approval</span>}</Link>
-            <Link href="/admin/ads-listings/" className="adm-tile"><em><Icon name="megaphone" />RVParkAds listings</em><b>{other.ads}</b></Link>
           </div>
         </>
       )}
