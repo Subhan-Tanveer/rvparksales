@@ -117,6 +117,7 @@ export default function ListView({ name }) {
                 {schema.columns.map((c, k) => <td key={c[0]} className={`${k > 1 ? 'hide-sm' : ''} ${['title', 'name', 'q', 'listingName', 'companyName'].includes(c[0]) ? 't-title' : ''}`} style={c[1] === 'thumb' ? { width: 70 } : undefined}>{cell(it, c)}</td>)}
                 <td>
                   <div className="adm-actions">
+                    <Link className="ab ab-sm ab-primary" href={`/admin/${name}/${encodeURIComponent(it.id)}/`} onClick={(e) => e.stopPropagation()}>{schema.readOnly ? 'Open' : 'Edit'}</Link>
                     <a className="ab ab-sm hide-sm" href={schema.path(it)} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()}>View</a>
                     {canDelete && <button type="button" className="ab ab-sm ab-danger" onClick={(e) => remove(it, e)}>Delete</button>}
                   </div>
