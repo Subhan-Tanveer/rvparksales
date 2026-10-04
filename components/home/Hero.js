@@ -81,7 +81,7 @@ export default function Hero({ stats }) {
       <div className="ch-shade" /><div className="ch-dark" />
 
       <div className="l-section-h hh-in">
-        <p className="ch-kicker ch-anim"><span className="ch-idx">(Since 2006)</span>America’s RV Park Marketplace</p>
+        <p className="ch-kicker ch-anim"><span className="ch-idx">(Since 2017)</span>America’s RV Park Marketplace</p>
         <Split as="h1" text={'Buy. *Sell.*\nAdvertise. *Grow.*'} className="hh-title" />
         <span className="ch-line" aria-hidden="true" />
         <div className="hh-row">

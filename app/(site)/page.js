@@ -9,7 +9,7 @@ import FindPark from '@/components/home/FindPark';
 import SelectCard from '@/components/home/SelectCard';
 import Split from '@/components/fx/Split';
 import Marquee from '@/components/fx/Marquee';
-import { listingsForSale, statesWithListings, posts, testimonials, SITE, loadContent } from '@/lib/content';
+import { listingsForSale, statesForSale, posts, testimonials, SITE, loadContent } from '@/lib/content';
 
 export const metadata = {
   title: { absolute: 'RV Park Sales - America’s RV Park Marketplace - RV Parks and Campgrounds For Sale' },
@@ -104,7 +104,7 @@ export default async function Home() {
             <p className="eyebrow">(03) Property search</p>
             <Split as="h2" text={'Find your\nnext *RV park*'} className="cn-title" />
           </div>
-          <FindPark states={statesWithListings()} />
+          <FindPark states={statesForSale()} />
         </div>
       </section>
 
@@ -170,10 +170,10 @@ export default async function Home() {
       <section className="cn-sec cn-ink nation">
         <div className="l-section-h nation-in">
           <div className="nation-copy">
-            <p className="eyebrow light">(06) Since 2006</p>
+            <p className="eyebrow light">(06) Since 2017</p>
             <Split as="h2" text={'The RV park\nindustry is\n*our business*'} className="cn-title" />
             <div className="nation-stats" data-reveal="stagger">
-              <div><b><span data-count="20">20</span>+</b><span>Years in the RV park industry</span></div>
+              <div><b><span data-count="9">9</span></b><span>Years in business</span></div>
               <div><b><span data-count={stats.forSale}>{stats.forSale}</span></b><span>Parks for sale right now</span></div>
               <div><b><span data-count={stats.states}>{stats.states}</span></b><span>States with active listings</span></div>
               <div><b>50</b><span>States in one nationwide marketplace</span></div>

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { allListings } from '@/lib/content';
+import { listingsForSale } from '@/lib/content';
 
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
@@ -22,7 +22,8 @@ const SOCIAL = [
 
 export default function SiteFooter() {
   const counts = {};
-  allListings().forEach((l) => { if (l.state) counts[l.state] = (counts[l.state] || 0) + 1; });
+  // Parks for sale only (Marie: state browsing should not pull in old sold parks).
+  listingsForSale().forEach((l) => { if (l.state) counts[l.state] = (counts[l.state] || 0) + 1; });
   const states = Object.keys(counts).sort();
 
   return (

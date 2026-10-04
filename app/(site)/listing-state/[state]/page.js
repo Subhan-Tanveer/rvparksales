@@ -6,7 +6,7 @@ import { allListings, statesWithListings, stateSlug, loadContent } from '@/lib/c
 
 // Old address pattern kept for search engines: /listing-state/florida/
 // Same layout as the old state archive: title + intro, then list and map
-// (for-sale and sold together, no State filter).
+// (opens on parks for sale; sold ones via Filters, no State filter).
 export async function generateStaticParams() {
   await loadContent();
   return statesWithListings().map((s) => ({ state: stateSlug(s) }));
@@ -36,7 +36,7 @@ export default async function StatePage({ params }) {
     <>
       <PageBand title={`${name} RV Parks and Campgrounds`} kicker="Browse by state" sub={`This is where you will find a list of RV Parks for sale in ${name} as well as a list of Campgrounds for sale in ${name}.`} crumbs={[{ label: 'RV Parks for Sale', href: '/listings/?_listing_status=for-sale' }, { label: name }]} compact />
       <Suspense fallback={<p style={{ padding: 40 }}>Loading listings…</p>}>
-        <ListingsArchive listings={listings} fixedState={name} pinColor="purple" />
+        <ListingsArchive listings={listings} fixedState={name} pinColor="purple" defaultStatus="for-sale" />
       </Suspense>
     </>
   );

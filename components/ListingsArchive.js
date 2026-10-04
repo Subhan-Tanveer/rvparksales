@@ -51,7 +51,7 @@ function loadLeaflet() {
   return window.__leafletPromise;
 }
 
-export default function ListingsArchive({ listings, fixedState = '', pinColor = 'red' }) {
+export default function ListingsArchive({ listings, fixedState = '', pinColor = 'red', defaultStatus = '' }) {
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -60,7 +60,9 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
   const map = useRef(null);
   const layer = useRef([]);
 
-  const status = sp.get('_listing_status') || '';
+  // State pages open on For Sale (Marie, Oct 2026); "any" shows sold parks too.
+  const rawStatus = sp.has('_listing_status') ? sp.get('_listing_status') : defaultStatus;
+  const status = rawStatus === 'any' ? '' : rawStatus;
   const category = sp.get('_listing_category') || '';
   const stateSlug = fixedState ? slugify(fixedState) : (sp.get('_listing_state') || '');
   const loc = sp.get('_listing_location') || ''; // "lat,lng,radius,label" like FacetWP
@@ -355,8 +357,8 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
             <Select value={String(minSites || '')} label="Minimum number of sites" onChange={(v) => set({ _listing_sites: v })} options={SITES} />
           </div>
           <div className="facet">
-            <Label onReset={() => set({ _listing_status: '' })}>Status</Label>
-            <Select value={status} label="Status" onChange={(v) => set({ _listing_status: v })} options={[['', 'Any status'], ...opts.status.map((k) => [k, STATUSES[k]])]} />
+            <Label onReset={() => set({ _listing_status: defaultStatus ? 'any' : '' })}>Status</Label>
+            <Select value={status} label="Status" onChange={(v) => set({ _listing_status: v || (defaultStatus ? 'any' : '') })} options={[['', 'Any status'], ...opts.status.map((k) => [k, STATUSES[k]])]} />
           </div>
           <div style={{ height: 27 }} />
           <div className="filters-btns">
