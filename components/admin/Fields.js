@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { slugify } from '@/lib/admin-schema';
 import { uploadImage } from '@/components/admin/util';
+import { OWNER_AVATARS, ownerAvatarSvg } from '@/lib/owner-avatars';
 
 const RichText = dynamic(() => import('@/components/admin/RichText'), { ssr: false, loading: () => <div className="rte"><div className="rte-body"><div className="ProseMirror" /></div></div> });
 
@@ -84,6 +85,8 @@ export default function Field({ f, item, set, extra, name }) {
       return wrap(<ImageField value={v} onChange={(u) => set(f.key, u)} folder={name} />);
     case 'images':
       return <div className="af wide"><span className="af-label">{f.label}</span><Gallery value={v || []} onChange={(list) => set(f.key, list)} folder={name} /></div>;
+    case 'avatar':
+      return <div className="af wide"><span className="af-label">{f.label}</span><OwnerPicture value={v} onChange={(x) => set(f.key, x)} folder={name} /></div>;
     case 'location':
       return <div className="af wide"><span className="af-label">{f.label}</span><Location item={item} set={set} /></div>;
     case 'person':
@@ -212,6 +215,41 @@ function Gallery({ value, onChange, folder }) {
       {status && <span className="af-progress">{status}</span>}
       <span className="af-hint">Drag photos to change the order. ★ makes a photo the cover.</span>
       <input ref={input} type="file" accept="image/*" multiple hidden onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }} />
+    </>
+  );
+}
+
+// By Owner picture: the logo, one of the 8 drawn faces, or the owner's own photo.
+// Stored as '' (logo), an avatar key, or the uploaded photo's URL.
+function OwnerPicture({ value, onChange, folder }) {
+  const input = useRef(null);
+  const [pct, setPct] = useState(null);
+  const photo = /^(https?:\/\/|\/)/.test(value || '') ? value : null;
+  async function pick(e) {
+    const file = e.target.files?.[0]; e.target.value = '';
+    if (!file) return;
+    setPct(0);
+    try { onChange(await uploadImage(file, folder, setPct)); } catch (err) { alert(err.message); }
+    setPct(null);
+  }
+  const tile = (key, label, art) => (
+    <button type="button" key={key || 'logo'} className={`af-av ${(value || '') === key ? 'on' : ''}`} title={label} aria-label={label} aria-pressed={(value || '') === key} onClick={() => onChange(key)}>
+      {art}
+    </button>
+  );
+  return (
+    <>
+      <div className="af-avs">
+        {tile('', 'RV By Owner logo', <img src="/images/by-owner-logo.png" alt="" />)}
+        {OWNER_AVATARS.map((a) => tile(a.key, a.label, <span dangerouslySetInnerHTML={{ __html: ownerAvatarSvg(a.key, 64) }} />))}
+        {photo && tile(photo, 'Owner’s photo', <img src={photo} alt="" />)}
+        <button type="button" className="af-av af-av-up" onClick={() => input.current?.click()} title="Upload the owner’s photo">
+          <span><b>+</b>{photo ? 'New photo' : 'Owner photo'}</span>
+        </button>
+      </div>
+      {pct !== null && <span className="af-progress">Uploading… {pct}%</span>}
+      <span className="af-hint">Click a picture to use it, or upload a photo of the owner’s face.</span>
+      <input ref={input} type="file" accept="image/*" hidden onChange={pick} />
     </>
   );
 }
