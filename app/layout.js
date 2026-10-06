@@ -18,6 +18,11 @@ export const metadata = {
   title: { default: 'RV Park Sales - USA - RV Parks and Campgrounds For Sale', template: '%s - RV Park Sales' },
   description: 'RV Park Sales brings buyers and sellers together to sell RV parks and campgrounds all over the US. Based in Panama City Beach, Florida.',
   openGraph: { siteName: 'RV Park Sales', type: 'website' },
+  // Browser tab icon: the palm tree from the logo.
+  icons: {
+    icon: [{ url: '/favicon.ico', sizes: 'any' }, { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' }, { url: '/icon-512.png', type: 'image/png', sizes: '512x512' }],
+    apple: '/apple-touch-icon.png',
+  },
   // Preview copies must not be indexed (see app/robots.txt/route.js); switched on at launch.
   robots: process.env.ALLOW_INDEXING === 'true' ? undefined : { index: false, follow: false },
 };
