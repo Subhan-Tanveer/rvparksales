@@ -351,6 +351,7 @@ h1, h2, h3, h4 { color: var(--ink); }
 .ad-pop { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--ink); font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
 .ad-level { font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
 .ad-plan h3 { font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: 1.7rem; line-height: 1.05; margin: 8px 0 8px; }
+.ad-plan.pop h3, .ad-plan.pop li, .ad-plan.pop .ad-price b { color: #fff; }
 .ad-tag { opacity: .75; margin: 0 0 18px; line-height: 1.45; }
 .ad-price { margin: 0; font-size: 1rem; opacity: .85; }
 .ad-price b { font-family: var(--display); font-weight: 400; font-size: 3rem; line-height: 1; opacity: 1; }
