@@ -16,6 +16,9 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 const toHtml = (text) => (text ? String(text).split(/\n\s*\n/).map((p) => `<p>${esc(p.trim()).replace(/\n/g, '<br />')}</p>`).join('') : '');
 const s = (v) => (v == null || v === '' ? null : String(v));
 
+const PLAN_FEATURED = { level1: '', level2: 'featured', level3: 'spotlight' };
+const PLAN_NAMES = { level1: 'Professional Listing', level2: 'Buyer Exposure', level3: 'Full Marketing Campaign' };
+
 export async function POST(req) {
   const secret = process.env.ADS_IMPORT_SECRET;
   if (!secret || req.headers.get('x-import-secret') !== secret) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -71,6 +74,12 @@ export async function POST(req) {
     Object.assign(l, media, { featuredImage: media.images[0] || null, updatedAt: new Date().toISOString() });
   } else {
     Object.assign(l, details, media, { featuredImage: media.images[0] || null, updatedAt: new Date().toISOString() });
+  }
+
+  // The seller's plan sets Featured (sent on every sync, incl. plan changes).
+  if (b.planKey && PLAN_FEATURED[b.planKey] !== undefined) {
+    l.featured = PLAN_FEATURED[b.planKey];
+    l.adsPlan = PLAN_NAMES[b.planKey];
   }
 
   await writeCollection('listings', list);

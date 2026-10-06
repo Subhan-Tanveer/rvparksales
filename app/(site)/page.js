@@ -9,7 +9,7 @@ import FindPark from '@/components/home/FindPark';
 import SelectCard from '@/components/home/SelectCard';
 import Split from '@/components/fx/Split';
 import Marquee from '@/components/fx/Marquee';
-import { listingsForSale, statesForSale, posts, testimonials, SITE, loadContent } from '@/lib/content';
+import { listingsForSale, statesForSale, posts, testimonials, featuredRank, SITE, loadContent } from '@/lib/content';
 
 export const metadata = {
   title: { absolute: 'RV Park Sales - America’s RV Park Marketplace - RV Parks and Campgrounds For Sale' },
@@ -51,7 +51,10 @@ export default async function Home() {
   const forSale = listingsForSale();
   const points = forSale.filter((l) => l.lat && l.lng).map((l) => ({ lat: l.lat, lng: l.lng }));
   const stats = { forSale: forSale.length, states: new Set(forSale.map((l) => l.state).filter(Boolean)).size };
-  const featured = forSale.filter((l) => l.featuredImage).slice(0, 8).map((l) => ({
+  const featured = forSale.filter((l) => l.featuredImage)
+    .sort((a, b) => (b.featured === 'spotlight') - (a.featured === 'spotlight'))
+    .slice(0, 8).map((l) => ({
+    featured: featuredRank(l) > 0,
     slug: l.slug, title: l.title, state: l.state, city: l.city, sites: l.sites, acres: l.acres, priceUsd: l.priceUsd, category: l.category,
     image: l.featuredImage,
   }));

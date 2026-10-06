@@ -5,6 +5,7 @@ import SellerForm from '@/components/SellerForm';
 import Split from '@/components/fx/Split';
 import Marquee from '@/components/fx/Marquee';
 import { SITE, testimonials, listingsForSale, loadContent } from '@/lib/content';
+import { AD_PLANS, buyerCount } from '@/lib/plans';
 
 export const metadata = {
   title: { absolute: 'Top RV Park Broker at RV Park Sales - USA RV Parks For Sale' },
@@ -20,9 +21,9 @@ const STEPS = [
 ];
 
 const OPTIONS = [
-  { n: '01', t: 'Sell With a Broker', d: 'Professional representation, valuation help, negotiation and transaction support from brokers who specialize in RV parks.', cta: 'Meet Our Brokers', href: '/brokers/', img: '/images/site/1956989740-scaled.jpg' },
-  { n: '02', t: 'Advertise It Yourself', d: 'Put your park in front of RV park buyers with RVParkAds, with no broker and no commission. Inquiries go straight to you.', cta: 'See RVParkAds Plans ↗', href: `${SITE.ads}/#plans`, ext: true, img: '/images/site/rv-parks-2.jpg' },
-  { n: '03', t: 'Grow Its Value First', d: 'Not ready yet? Learn how to raise revenue and improve operations so your park is worth more when you go to market.', cta: 'Visit RVParkSuccess ↗', href: SITE.success, ext: true, img: '/images/site/mobile-home-parks-1.jpg' },
+  { n: '01', t: 'Sell With a Broker', d: 'Professional representation, valuation help, negotiation and transaction support from brokers who specialize in RV parks.', fee: 'No upfront advertising fee. Your broker is paid a commission only when your park sells.', cta: 'Meet Our Brokers', href: '/brokers/', img: '/images/site/1956989740-scaled.jpg' },
+  { n: '02', t: 'Advertise It Yourself', d: 'Put your park in front of RV park buyers with RVParkAds, with no broker and no commission. Inquiries go straight to you.', fee: 'Flat monthly plan from $99. No commission, ever.', cta: 'See RVParkAds Plans ↗', href: `${SITE.ads}/#plans`, ext: true, img: '/images/site/rv-parks-2.jpg' },
+  { n: '03', t: 'Grow Its Value First', d: 'Not ready yet? Learn how to raise revenue and improve operations so your park is worth more when you go to market.', fee: 'Free resources to start.', cta: 'Visit RVParkSuccess ↗', href: SITE.success, ext: true, img: '/images/site/mobile-home-parks-1.jpg' },
 ];
 
 // Sell page: Marie's copy as a run of cinematic scenes: hero, why advertise
@@ -32,6 +33,7 @@ export default async function SellPage() {
   await loadContent();
   const reviews = [...testimonials()].reverse().filter((t) => t.quote.length > 60).slice(0, 6);
   const forSale = listingsForSale().length;
+  const buyers = await buyerCount();
   return (
     <>
       <PageBand title="Get Your RV Park In Front of Thousands of Qualified Buyers" kicker="Sell my RV park" index="(Sellers)" image="/images/site/mobile-home-parks-1.jpg"
@@ -59,7 +61,9 @@ export default async function SellPage() {
           </div>
           <div className="nation-stats sell-nums" data-reveal="stagger">
             <div><b><span data-count={forSale}>{forSale}</span></b><span>Parks for sale right now</span></div>
-            <div><b>50</b><span>States reached by our marketing</span></div>
+            {buyers
+              ? <div><b><span data-count={buyers}>{buyers.toLocaleString('en-US')}</span></b><span>Registered buyers in our network</span></div>
+              : <div><b>50</b><span>States reached by our marketing</span></div>}
             <div><b>3</b><span>Ways to sell, one marketplace</span></div>
             <div><b>0%</b><span>Commission when you advertise yourself</span></div>
           </div>
@@ -68,10 +72,43 @@ export default async function SellPage() {
 
       <Marquee items={['Sell with a broker', 'Advertise it yourself', 'Grow its value first']} className="mq-big" speed={34} />
 
+      <section className="cn-sec cn-paper" id="plans">
+        <div className="l-section-h">
+          <div className="cn-head">
+            <p className="eyebrow">(02) Advertise it yourself</p>
+            <Split as="h2" text={'A listing site lists\nyour park. *We market it.*'} className="cn-title" />
+            <p className="cn-lede">Every plan is a marketing program, not just a spot in a directory. Your park goes to registered RVParkSelect buyers first, and every inquiry comes straight to you.</p>
+          </div>
+          <div className="ad-plans" data-reveal="stagger">
+            {AD_PLANS.map((p) => (
+              <div key={p.key} className={`ad-plan ${p.popular ? 'pop' : ''}`}>
+                {p.popular && <span className="ad-pop">Most popular</span>}
+                <span className="ad-level">{p.level}</span>
+                <h3>{p.name}</h3>
+                <p className="ad-tag">{p.tagline}</p>
+                <p className="ad-price"><b>${p.price}</b>/month</p>
+                <p className="ad-min">{p.min}</p>
+                <ul>
+                  {p.includes && <li className="inc">{p.includes}</li>}
+                  {p.features.map((f) => <li key={f}>{f}</li>)}
+                </ul>
+                <a className={`btn btn-lg ${p.popular ? '' : 'btn-ink'}`} href={`${SITE.ads}/#plans`} target="_blank" rel="noopener">Choose {p.name} ↗</a>
+              </div>
+            ))}
+          </div>
+          <div className="ad-promise" data-reveal="stagger">
+            <span><b>No commission.</b> Ever.</span>
+            <span><b>No long-term contract.</b></span>
+            <span><b>Inquiries go straight to you.</b></span>
+            <span><b>Want a broker instead?</b> No upfront fee.</span>
+          </div>
+        </div>
+      </section>
+
       <section className="cn-sec cn-paper2">
         <div className="l-section-h">
           <div className="cn-head">
-            <p className="eyebrow">(02) Your options</p>
+            <p className="eyebrow">(03) Your options</p>
             <Split as="h2" text={'Three ways\nto *sell your park*'} className="cn-title" />
           </div>
           <div className="stack" data-stack>
@@ -81,6 +118,7 @@ export default async function SellPage() {
                   <span className="stc-n">{o.n}</span>
                   <h3>{o.t}</h3>
                   <p>{o.d}</p>
+                  {o.fee && <p className="stc-fee">{o.fee}</p>}
                   {o.ext
                     ? <a href={o.href} className="btn btn-lg" target="_blank" rel="noopener">{o.cta}</a>
                     : <Link href={o.href} className="btn btn-lg">{o.cta}</Link>}
@@ -95,7 +133,7 @@ export default async function SellPage() {
       <section className="cn-sec cn-ink">
         <div className="l-section-h">
           <div className="cn-head">
-            <p className="eyebrow light">(03) How it works</p>
+            <p className="eyebrow light">(04) How it works</p>
             <Split as="h2" text={'From first call\nto *closing*'} className="cn-title" />
           </div>
           <div className="steps-x" data-reveal="stagger">
@@ -114,7 +152,7 @@ export default async function SellPage() {
         <div className="l-section-h">
           <div className="cn-head cn-head-row">
             <div>
-              <p className="eyebrow">(04) Don’t just take our word for it</p>
+              <p className="eyebrow">(05) Don’t just take our word for it</p>
               <Split as="h2" text={'Our latest\n*reviews*'} className="cn-title" />
             </div>
             <a href="https://reviews.digitalrez.com/feedback/pages/add-review/NjY3MzA=" className="btn btn-lg btn-ink" target="_blank" rel="noopener">Leave A Review ↗</a>
@@ -126,7 +164,7 @@ export default async function SellPage() {
       <section className="cn-sec cn-paper2">
         <div className="l-section-h" style={{ maxWidth: 1100 }}>
           <div className="cn-head">
-            <p className="eyebrow">(05) Get started</p>
+            <p className="eyebrow">(06) Get started</p>
             <Split as="h2" text={'Tell us about\n*your park*'} className="cn-title" />
             <p className="cn-lede">Fill out the form and we’ll be in touch about your selling options.</p>
           </div>

@@ -342,6 +342,29 @@ h1, h2, h3, h4 { color: var(--ink); }
 .stc-n { font-family: var(--display); font-size: clamp(80px, 9vw, 150px); line-height: .8; color: transparent; -webkit-text-stroke: 1.5px var(--accent); margin-bottom: 24px; }
 .stc-copy h3 { font-family: var(--display); font-weight: 400; text-transform: uppercase; color: #fff; font-size: clamp(38px, 4vw, 66px); line-height: .92; margin: 0 0 18px; }
 .stc-copy p { color: rgba(255, 255, 255, .9); font-size: 1.1rem; line-height: 1.6; margin: 0 0 30px; max-width: 460px; }
+.stc-copy p.stc-fee { margin: -18px 0 30px; padding-left: 14px; border-left: 3px solid var(--accent); font-size: 1rem; color: #fff; font-weight: 600; }
+
+/* Sell page: RVParkAds packages */
+.ad-plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; align-items: stretch; }
+.ad-plan { position: relative; display: flex; flex-direction: column; padding: 34px 28px 28px; border-radius: 24px; background: #fff; border: 1px solid var(--line); }
+.ad-plan.pop { background: var(--ink); color: #fff; border-color: var(--ink); transform: translateY(-10px); box-shadow: 0 30px 60px -30px rgba(12, 14, 17, .5); }
+.ad-pop { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--ink); font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
+.ad-level { font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.ad-plan h3 { font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: 1.7rem; line-height: 1.05; margin: 8px 0 8px; }
+.ad-tag { opacity: .75; margin: 0 0 18px; line-height: 1.45; }
+.ad-price { margin: 0; font-size: 1rem; opacity: .85; }
+.ad-price b { font-family: var(--display); font-weight: 400; font-size: 3rem; line-height: 1; opacity: 1; }
+.ad-min { margin: 4px 0 18px; font-size: .85rem; opacity: .6; }
+.ad-plan ul { list-style: none; margin: 0 0 26px; padding: 18px 0 0; border-top: 1px solid var(--line); flex: 1; display: grid; gap: 10px; align-content: start; }
+.ad-plan.pop ul { border-color: var(--line-l); }
+.ad-plan li { position: relative; padding-left: 26px; line-height: 1.4; font-size: .97rem; }
+.ad-plan li::before { content: '✓'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+.ad-plan li.inc { font-weight: 700; }
+.ad-plan .btn { justify-content: center; text-align: center; }
+.ad-promise { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 12px; margin-top: 40px; }
+.ad-promise span { padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: #fff; font-size: .95rem; }
+.ad-promise b { font-weight: 700; }
+@media (max-width: 900px) { .ad-plans { grid-template-columns: minmax(0, 1fr); } .ad-plan.pop { transform: none; } }
 .stc-img { background: center / cover no-repeat; min-height: 300px; }
 @media (max-width: 900px) { .stack-card { grid-template-columns: minmax(0, 1fr); top: 90px; } .stack-card:nth-child(2) { top: 105px; } .stack-card:nth-child(3) { top: 120px; } .stc-copy { padding: 36px 28px; } .stc-img { min-height: 200px; order: -1; } }
 
@@ -449,6 +472,9 @@ section.l-section:not(.cine-hero):not(.cn-sec):not(.final-cta):not(.reviews-sec)
 .arch-list { background: var(--paper); }
 .l-row { background: #fff; border: 1px solid var(--line); }
 .l-top h3 { font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: 1.35rem; line-height: 1.02; letter-spacing: .01em; }
+.l-tags { display: flex; gap: 6px; flex: none; flex-wrap: wrap; justify-content: flex-end; }
+.l-row .status.featured { background: #e0a526; color: #1a1306; }
+.hp-feat { position: absolute; top: 14px; right: 14px; z-index: 2; background: #e0a526; color: #1a1306; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; }
 .l-row .status { background: var(--ink); border-radius: 999px !important; padding: 4px 10px !important; font-weight: 500; letter-spacing: .06em; }
 .l-meta .price { background: var(--accent) !important; color: var(--ink) !important; border-radius: 999px !important; }
 .filters-btn { border-radius: 999px !important; background: var(--ink) !important; color: #fff !important; box-shadow: none !important; }

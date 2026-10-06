@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import ListingsArchive from '@/components/ListingsArchive';
 import PageBand from '@/components/PageBand';
-import { allListings, statesWithListings, stateSlug, loadContent } from '@/lib/content';
+import { allListings, featuredRank, statesWithListings, stateSlug, loadContent } from '@/lib/content';
 
 // Old address pattern kept for search engines: /listing-state/florida/
 // Same layout as the old state archive: title + intro, then list and map
@@ -29,7 +29,7 @@ export default async function StatePage({ params }) {
   if (!name) notFound();
   const listings = allListings().map((l) => ({
     slug: l.slug, title: l.title, status: l.status, category: l.category, state: l.state, city: l.city,
-    priceUsd: l.priceUsd, sites: l.sites, acres: l.acres, featuredImage: l.featuredImage, address: l.address, lat: l.lat, lng: l.lng,
+    priceUsd: l.priceUsd, sites: l.sites, acres: l.acres, featuredImage: l.featuredImage, featured: featuredRank(l) > 0, address: l.address, lat: l.lat, lng: l.lng,
     photos: [...new Set([l.featuredImage, ...l.images].filter(Boolean))].slice(0, 8),
   }));
   return (

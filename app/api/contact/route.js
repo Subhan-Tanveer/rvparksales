@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { bump } from '@/lib/stats';
 
 // Contact form handler. Sends the message to Marie by email, with the
 // visitor's address as reply-to so she can answer straight from her inbox.
@@ -35,6 +36,10 @@ export async function POST(request) {
   if (!name || (!message && !form) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return Response.json({ error: form ? 'Please fill in the required fields.' : 'Please enter your name, a valid email and a message.' }, { status: 400 });
   }
+
+  // A buyer asked about a listing: counts toward that listing's inquiries
+  // (even if the email below can't be sent, the buyer did reach out).
+  if (body.listingId) await bump(String(body.listingId), 'inquiries');
 
   const { GMAIL_USER, GMAIL_APP_PASSWORD } = process.env;
   if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {

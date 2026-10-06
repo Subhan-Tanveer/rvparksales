@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 // Opens from any .trigger-contact-popup element and goes to /api/contact,
 // which emails Marie with the listing attached. (The old "Request Offering
 // Memo" form was retired in Oct 2026 at Marie's request.)
-export default function ListingPopups({ title, url }) {
+export default function ListingPopups({ title, url, listingId }) {
   const [open, setOpen] = useState(false);
   const [state, setState] = useState({ status: 'idle', message: '' });
 
@@ -33,7 +33,7 @@ export default function ListingPopups({ title, url }) {
       const res = await fetch('/api/contact/', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          form: 'Listing Information', listing: title, role: fd.describe,
+          form: 'Listing Information', listing: title, listingId, role: fd.describe,
           name: fd.name, email: fd.email, phone: fd.phone, message: fd.message, website: fd.website,
           details: { 'Listing URL': url },
         }),

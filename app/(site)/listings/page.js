@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import ListingsArchive from '@/components/ListingsArchive';
 import PageBand from '@/components/PageBand';
-import { allListings, loadContent } from '@/lib/content';
+import { allListings, featuredRank, loadContent } from '@/lib/content';
 
 export const metadata = {
   title: 'RV Parks and Campgrounds For Sale',
@@ -12,7 +12,7 @@ export const metadata = {
 function leanListings() {
   return allListings().map((l) => ({
     slug: l.slug, title: l.title, status: l.status, category: l.category, state: l.state, city: l.city,
-    priceUsd: l.priceUsd, sites: l.sites, acres: l.acres, featuredImage: l.featuredImage, address: l.address, lat: l.lat, lng: l.lng,
+    priceUsd: l.priceUsd, sites: l.sites, acres: l.acres, featuredImage: l.featuredImage, featured: featuredRank(l) > 0, address: l.address, lat: l.lat, lng: l.lng,
     photos: [...new Set([l.featuredImage, ...l.images].filter(Boolean))].slice(0, 8),
   }));
 }

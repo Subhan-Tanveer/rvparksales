@@ -65,6 +65,7 @@ export default function ListView({ name }) {
     if (key === 'publishState') { const [t, c] = VIS[v || 'publish'] || [v, 'pill-gray']; return <span className={`pill ${c}`}>{t}</span>; }
     if (key === '_visibility') return <span className={`pill ${SELECTVIS[v] || 'pill-gray'}`}>{v}</span>;
     if (key === 'status' || key === 'pofStatus') return v ? <span className={`pill ${STAT[v] || 'pill-gray'}`}>{v}</span> : '—';
+    if (key === 'featured') return v ? <span className="pill pill-amber">{v === 'spotlight' ? '★ Spotlight' : '★ Featured'}</span> : '—';
     if (key === 'subscriptionActive') return <span className={`pill ${v ? 'pill-green' : 'pill-gray'}`}>{v ? 'Yes' : 'No'}</span>;
     if (key === 'priceUsd') return money(v);
     if (key === 'askingPriceCents') return cents(v);

@@ -4,6 +4,7 @@ import { COLLECTIONS, readFresh, writeCollection } from '@/lib/store';
 import { cleanHtml, autop } from '@/lib/content';
 import { SCHEMAS, SOURCE, withIds, slugify } from '@/lib/admin-schema';
 import { syncListingToSelect, syncBrokersToSelect, siteOrigin, applySyncResult } from '@/lib/select-sync';
+import { statsFor } from '@/lib/stats';
 
 // The admin's data API, one collection at a time:
 //   GET     everything in the collection (rich text cleaned up for the editor)
@@ -40,6 +41,15 @@ export async function GET(req, { params }) {
     HTML_FIELDS.forEach((k) => { if (typeof out[k] === 'string') out[k] = autop(cleanHtml(out[k])); });
     return out;
   });
+  // Listing performance (screen-only, never saved: keys starting with _).
+  if (name === 'listings') {
+    const stats = await statsFor();
+    items.forEach((it) => {
+      const s = stats[String(it.id)];
+      it._views30 = s?.views30 ?? 0; it._inquiries30 = s?.inquiries30 ?? 0;
+      it._stats = s ? `${s.views30} views and ${s.inquiries30} inquiries in the last 30 days (${s.views} views, ${s.inquiries} inquiries in total)` : 'No views counted yet.';
+    });
+  }
   // Lookups the forms need: brokers for the listing contact, blog categories for posts.
   const extra = {};
   if (name === 'listings') extra.brokers = (await load('brokers')).map((b) => ({ name: b.name, photo: b.photo, phone: b.phone, email: b.email }));

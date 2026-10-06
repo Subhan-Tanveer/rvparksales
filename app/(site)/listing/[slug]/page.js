@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import ListingGallery from '@/components/ListingGallery';
 import PageBand from '@/components/PageBand';
 import ListingPopups from '@/components/ListingPopups';
+import ViewTracker from '@/components/ViewTracker';
 import { allListings, listingBySlug, textOf, metaTitle, SITE, loadContent } from '@/lib/content';
 
 export async function generateStaticParams() {
@@ -153,7 +154,8 @@ export default async function ListingPage({ params }) {
         </div>
       </section>
       <div className="mobile-cta"><button type="button" className="btn btn-block trigger-contact-popup">Get More Information</button></div>
-      <ListingPopups title={l.title} url={url} />
+      <ListingPopups title={l.title} url={url} listingId={String(l.id)} />
+      <ViewTracker id={String(l.id)} />
     </>
   );
 }

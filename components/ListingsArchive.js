@@ -289,7 +289,10 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
               <div className="l-body">
                 <div className="l-top">
                   <h3>{l.title}</h3>
-                  <span className="status">{l.status}</span>
+                  <span className="l-tags">
+                    {l.featured && <span className="status featured">★ Featured</span>}
+                    <span className="status">{l.status}</span>
+                  </span>
                 </div>
                 {(money(l.priceUsd) || l.category) && (
                   <div className="l-meta">
