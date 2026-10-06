@@ -5,9 +5,12 @@ import { SITE, loadContent } from '@/lib/content';
 // only at launch by setting ALLOW_INDEXING=true on the production deployment.
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req) {
   await loadContent();
-  const allow = process.env.ALLOW_INDEXING === 'true';
+  // Only the real domain is indexed; the *.vercel.app copy stays hidden so it
+  // never competes with www.rvparksales.com in search results.
+  const host = req.headers.get('host') || '';
+  const allow = process.env.ALLOW_INDEXING === 'true' && /(^|\.)rvparksales\.com$/.test(host);
   const body = allow
     ? `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}/sitemap.xml\n`
     : 'User-agent: *\nDisallow: /\n';
