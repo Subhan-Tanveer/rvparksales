@@ -3,12 +3,16 @@
 // Only photos the site content actually uses are copied, and ones already
 // there are skipped, so it is safe to run again.
 //
+//   node scripts/restore-wp-photos.mjs ip:192.158.226.175 [--force]
+//                                                       (straight from the old Appnet server by IP;
+//                                                        --force replaces copies already there)
 //   node scripts/restore-wp-photos.mjs archive          (Internet Archive copies)
 //   node scripts/restore-wp-photos.mjs <folder>         (a downloaded wp-content/uploads folder,
 //                                                         e.g. from the old host's backup zip)
 // Needs BLOB_READ_WRITE_TOKEN (from .env.local).
 import fs from 'node:fs';
 import path from 'node:path';
+import https from 'node:https';
 import { put, head } from '@vercel/blob';
 
 const env = Object.fromEntries(fs.readFileSync('.env.local', 'utf8').split(/\r?\n/).filter((l) => /^[A-Z_]+=/.test(l)).map((l) => { const i = l.indexOf('='); return [l.slice(0, i), l.slice(i + 1).replace(/^"|"$/g, '')]; }));
@@ -61,6 +65,21 @@ async function fromArchive(rel) {
   return r.ok && /image|pdf/.test(r.headers.get('content-type') || '') ? Buffer.from(await r.arrayBuffer()) : null;
 }
 
+// The old server still answers for www.rvparksales.com when asked by IP.
+function fromServer(ip, rel) {
+  const urlPath = '/wp-content/uploads/' + rel.split('/').map(encodeURIComponent).join('/');
+  return new Promise((resolve) => {
+    const req = https.get({ host: ip, servername: 'www.rvparksales.com', path: urlPath, headers: { Host: 'www.rvparksales.com', 'User-Agent': 'Mozilla/5.0' }, rejectUnauthorized: false, timeout: 60000 }, (res) => {
+      if (res.statusCode !== 200 || !/image|pdf/.test(res.headers['content-type'] || '')) { res.resume(); return resolve(null); }
+      const chunks = [];
+      res.on('data', (c) => chunks.push(c));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+    req.on('error', () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+  });
+}
+
 function fromFolder(rel) {
   const f = path.join(source, rel);
   return fs.existsSync(f) ? fs.readFileSync(f) : null;
@@ -73,8 +92,10 @@ const missing = [];
 for (let i = 0; i < paths.length; i += 8) {
   await Promise.all(paths.slice(i, i + 8).map(async (rel) => {
     const key = `wp-content/uploads/${rel}`;
-    if (await head(key, { token }).catch(() => null)) { had++; return; }
-    const body = source === 'archive' ? await fromArchive(rel).catch(() => null) : fromFolder(rel);
+    if (!process.argv.includes('--force') && await head(key, { token }).catch(() => null)) { had++; return; }
+    const body = source === 'archive' ? await fromArchive(rel).catch(() => null)
+      : source.startsWith('ip:') ? await fromServer(source.slice(3), rel)
+      : fromFolder(rel);
     if (!body) { missing.push(rel); return; }
     await put(key, body, { access: 'private', token, contentType: typeOf(rel), addRandomSuffix: false, allowOverwrite: true });
     copied++;
