@@ -147,7 +147,7 @@ export default function ListingsArchive({ listings, fixedState = '', pinColor = 
     let cancelled = false;
     const pts = shown.filter((l) => l.lat && l.lng);
     // Small, fast copies of the photos (Next's image optimizer) for the map card.
-    const thumb = (src) => (/^(https:\/\/www\.rvparksales\.com\/|\/media\/)/.test(src) ? `/_next/image?url=${encodeURIComponent(src)}&w=384&q=70` : src);
+    const thumb = (src) => (/^(https:\/\/www\.rvparksales\.com\/|\/media\/|\/wp-content\/)/.test(src) ? `/_next/image?url=${encodeURIComponent(src)}&w=384&q=70` : src);
     // Hover card for a pin: photo slider (with small back/next arrows), title and price.
     const card = (l) => {
       const photos = (l.photos?.length ? l.photos : (l.featuredImage ? [l.featuredImage] : [])).map(thumb);
