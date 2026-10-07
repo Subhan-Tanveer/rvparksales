@@ -61,7 +61,7 @@ export async function POST(request) {
     await transporter.sendMail({
       from: `RVParkSales.com <${GMAIL_USER}>`,
       to: 'marie@rvparksales.com',
-      replyTo: `${name} <${email}>`,
+      replyTo: { name, address: email }, // quoted properly, even for names with ( ) or commas
       subject: listing ? `${what}: ${listing} (${name})` : `${what} from ${name}`,
       html: renderEmail({
         preheader: message ? message.slice(0, 120) : `${name} filled in the ${what.toLowerCase()} form.`,
@@ -85,7 +85,7 @@ export async function POST(request) {
     // To the visitor: a branded receipt, so they know it arrived. Best-effort.
     await transporter.sendMail({
       from: `Marie Hansen, RVParkSales.com <${GMAIL_USER}>`,
-      to: `${name} <${email}>`,
+      to: { name, address: email },
       replyTo: 'marie@rvparksales.com',
       subject: listing ? `We received your question about ${listing}` : 'We received your message | RVParkSales.com',
       html: renderEmail({
