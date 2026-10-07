@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { bump } from '@/lib/stats';
+import { renderEmail } from '@/lib/email-template';
 
 // Contact form handler. Sends the message to Marie by email, with the
 // visitor's address as reply-to so she can answer straight from her inbox.
@@ -8,7 +9,6 @@ import { bump } from '@/lib/stats';
 // (The old site's form fed Keap; hooking this into Keap or another CRM is a
 // separate step, see README.)
 
-const esc = (s = '') => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 export async function POST(request) {
   let body;
@@ -49,17 +49,61 @@ export async function POST(request) {
     );
   }
 
+  // What the message is about, for the subject line and the email heading.
+  const what = form === 'Listing Information' ? 'Listing inquiry' : form || 'Website message';
+  const listingUrl = details.find(([k]) => k === 'Listing URL')?.[1];
+  const extra = details.filter(([k]) => k !== 'Listing URL');
+  const telHref = phone ? `tel:${phone.replace(/[^d+]/g, '')}` : null;
+
   try {
     const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD } });
+    // To Marie: who it is, how to reach them, what they asked. Reply goes to them.
     await transporter.sendMail({
       from: `RVParkSales.com <${GMAIL_USER}>`,
       to: 'marie@rvparksales.com',
       replyTo: `${name} <${email}>`,
-      subject: form ? `${form} request from ${name}` : `New website message from ${name}${listing ? ` about ${listing}` : ''}`,
-      html: `<h3>${form ? esc(form) + ' request' : 'New message'} from rvparksales.com</h3>
-        <p><strong>Name:</strong> ${esc(name)}<br><strong>Email:</strong> ${esc(email)}<br><strong>Phone:</strong> ${esc(phone) || '—'}<br><strong>I am a:</strong> ${esc(role) || '—'}${listing ? `<br><strong>Listing:</strong> ${esc(listing)}` : ''}${details.map(([k, v]) => `<br><strong>${esc(k)}:</strong> ${esc(v)}`).join('')}</p>
-        <p style="white-space:pre-wrap">${esc(message) || '—'}</p>`,
+      subject: listing ? `${what}: ${listing} (${name})` : `${what} from ${name}`,
+      html: renderEmail({
+        preheader: message ? message.slice(0, 120) : `${name} filled in the ${what.toLowerCase()} form.`,
+        eyebrow: `New ${what.toLowerCase()}`,
+        title: listing ? listing : `${name} reached out`,
+        intro: listing
+          ? `${name} wants more information about this listing. Reply to this email to answer them directly.`
+          : `${name} sent a message through rvparksales.com. Reply to this email to answer them directly.`,
+        sections: [
+          { heading: 'Contact', rows: [['Name', name], ['Email', email, `mailto:${email}`], ['Phone', phone, telHref], ['I am a', role]] },
+          { heading: 'Details', rows: [...(listing ? [['Listing', listing, listingUrl]] : []), ...extra] },
+        ],
+        message: { text: message },
+        buttons: [
+          { label: `Reply to ${name.split(' ')[0]}`, href: `mailto:${email}?subject=${encodeURIComponent(`Re: ${listing || what}`)}` },
+          ...(telHref ? [{ label: 'Call', href: telHref }] : []),
+          ...(listingUrl ? [{ label: 'View listing', href: listingUrl }] : []),
+        ],
+      }),
     });
+    // To the visitor: a branded receipt, so they know it arrived. Best-effort.
+    await transporter.sendMail({
+      from: `Marie Hansen, RVParkSales.com <${GMAIL_USER}>`,
+      to: `${name} <${email}>`,
+      replyTo: 'marie@rvparksales.com',
+      subject: listing ? `We received your question about ${listing}` : 'We received your message | RVParkSales.com',
+      html: renderEmail({
+        preheader: 'Thanks for reaching out. We will be in touch shortly.',
+        eyebrow: 'Message received',
+        title: `Thanks, ${name.split(' ')[0]}!`,
+        intro: listing
+          ? `We received your request for more information about ${listing}. We will be in touch shortly with the details.`
+          : 'We received your message and will be in touch shortly. If it is urgent, call us at (850) 832-0022.',
+        sections: [{ heading: 'What you sent', rows: [...(listing ? [['Listing', listing, listingUrl]] : []), ['Name', name], ['Email', email], ['Phone', phone]] }],
+        message: { heading: 'Your message', text: message },
+        buttons: [
+          listingUrl ? { label: 'Back to the listing', href: listingUrl } : { label: 'Browse parks for sale', href: 'https://www.rvparksales.com/listings/?_listing_status=for-sale' },
+          { label: 'Get first look access', href: 'https://rvparkselect.com/#pricing' },
+        ],
+        closing: 'Marie Hansen, RVParkSales.com',
+      }),
+    }).catch((e) => console.error('Visitor receipt not sent:', e.message));
     return Response.json({ ok: true });
   } catch (err) {
     console.error('Contact email failed:', err.message);
