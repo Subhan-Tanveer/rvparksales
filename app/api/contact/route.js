@@ -76,7 +76,7 @@ export async function POST(request) {
         ],
         message: { text: message },
         buttons: [
-          { label: `Reply to ${name.split(' ')[0]}`, href: `mailto:${email}?subject=${encodeURIComponent(`Re: ${listing || what}`)}` },
+          { label: 'Reply to customer', href: `mailto:${email}?subject=${encodeURIComponent(`Re: ${listing || what}`)}` },
           ...(telHref ? [{ label: 'Call', href: telHref }] : []),
           ...(listingUrl ? [{ label: 'View listing', href: listingUrl }] : []),
         ],
