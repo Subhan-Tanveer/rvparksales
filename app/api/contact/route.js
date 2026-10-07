@@ -1,14 +1,39 @@
 import nodemailer from 'nodemailer';
 import { bump } from '@/lib/stats';
 import { renderEmail } from '@/lib/email-template';
+import { loadContent, allListings, brokers, developers, brokerByName } from '@/lib/content';
 
-// Contact form handler. Sends the message to Marie by email, with the
-// visitor's address as reply-to so she can answer straight from her inbox.
-// Until GMAIL_USER / GMAIL_APP_PASSWORD are set for this project it answers
-// 503 with a friendly "call or email us" message instead of pretending to send.
-// (The old site's form fed Keap; hooking this into Keap or another CRM is a
-// separate step, see README.)
+// Every form on the site posts here. Marie always gets the message; when it's
+// about a particular person or park, the right person gets it too:
+//   broker profile      -> that broker
+//   developer profile   -> that developer
+//   listing             -> the listing's broker (Marie's own listings: just Marie),
+//                          or the owner, for parks advertised on RVParkAds
+// Those addresses are looked up here from the site's own data, never taken
+// from the form, so the form can't be used to email anyone else.
+// Replies go straight to the visitor, who also gets a branded receipt.
+// Needs GMAIL_USER / GMAIL_APP_PASSWORD (answers 503 with a "call us" message until set).
 
+const MARIE = 'marie@rvparksales.com';
+const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e || '');
+
+// Who else should get this message, besides Marie.
+async function recipientsFor(body) {
+  await loadContent();
+  const out = [];
+  const add = (name, email, why) => {
+    if (validEmail(email) && email.toLowerCase() !== MARIE && !out.some((r) => r.email.toLowerCase() === email.toLowerCase())) out.push({ name, email, why });
+  };
+  const about = body.about && typeof body.about === 'object' ? body.about : {};
+  if (about.kind === 'broker') { const b = brokers().find((x) => x.slug === about.slug); if (b) add(b.name, b.email, 'broker'); }
+  if (about.kind === 'developer') { const d = developers().find((x) => x.slug === about.slug); if (d) add(d.name, d.email, 'developer'); }
+  if (body.listingId) {
+    const l = allListings().find((x) => String(x.id) === String(body.listingId));
+    if (l?.source === 'ads') add(l.ownerName || 'Owner', l.ownerEmail, 'owner');
+    else if (l?.sellerName) { const b = brokerByName(l.sellerName); if (b) add(b.name, b.email, 'broker'); }
+  }
+  return out;
+}
 
 export async function POST(request) {
   let body;
@@ -27,13 +52,13 @@ export async function POST(request) {
   const role = String(body.role || '').trim().slice(0, 40);
   const listing = String(body.listing || '').trim().slice(0, 200);
   const message = String(body.message || '').trim().slice(0, 3000);
-  // Consultation popups (buyer / seller) send their form name plus extra fields.
+  // Popups send their form name plus extra fields.
   const form = String(body.form || '').trim().slice(0, 80);
   const details = body.details && typeof body.details === 'object'
     ? Object.entries(body.details).slice(0, 20).map(([k, v]) => [String(k).slice(0, 60), String(v ?? '').trim().slice(0, 300)]).filter(([, v]) => v)
     : [];
 
-  if (!name || (!message && !form) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!name || (!message && !form) || !validEmail(email)) {
     return Response.json({ error: form ? 'Please fill in the required fields.' : 'Please enter your name, a valid email and a message.' }, { status: 400 });
   }
 
@@ -49,56 +74,60 @@ export async function POST(request) {
     );
   }
 
-  // What the message is about, for the subject line and the email heading.
+  // What the message is about, for subject lines and headings.
   const what = form === 'Listing Information' ? 'Listing inquiry' : form || 'Website message';
-  const listingUrl = details.find(([k]) => k === 'Listing URL')?.[1];
-  const extra = details.filter(([k]) => k !== 'Listing URL');
-  const telHref = phone ? `tel:${phone.replace(/[^d+]/g, '')}` : null;
+  const linkKey = details.find(([k]) => /(Listing URL| Link)$/.test(k));
+  const pageUrl = linkKey?.[1];
+  const extra = details.filter(([k]) => k !== linkKey?.[0]);
+  const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : null;
+  const subject = listing ? `${what}: ${listing} (${name})` : `${what} from ${name}`;
+  const others = await recipientsFor(body).catch(() => []);
+
+  // The alert itself; `note` says who else got it / why they're getting it.
+  const alert = (note) => renderEmail({
+    preheader: message ? message.slice(0, 120) : `${name} filled in the ${what.toLowerCase()} form.`,
+    eyebrow: `New ${what.toLowerCase()}`,
+    title: listing || `${name} reached out`,
+    intro: `${listing ? `${name} wants more information about this listing.` : `${name} sent a message through rvparksales.com.`} Reply to this email to answer them directly.${note ? ` ${note}` : ''}`,
+    sections: [
+      { heading: 'Contact', rows: [['Name', name], ['Email', email, `mailto:${email}`], ['Phone', phone, telHref], ['I am a', role]] },
+      { heading: 'Details', rows: [...(listing ? [['Listing', listing, pageUrl]] : []), ...extra] },
+    ],
+    message: { text: message },
+    buttons: [
+      { label: 'Reply to customer', href: `mailto:${email}?subject=${encodeURIComponent(`Re: ${listing || what}`)}` },
+      ...(telHref ? [{ label: 'Call', href: telHref }] : []),
+      ...(pageUrl ? [{ label: listing ? 'View listing' : 'View page', href: pageUrl }] : []),
+    ],
+  });
 
   try {
     const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD } });
-    // To Marie: who it is, how to reach them, what they asked. Reply goes to them.
-    await transporter.sendMail({
-      from: `RVParkSales.com <${GMAIL_USER}>`,
-      to: 'marie@rvparksales.com',
-      replyTo: { name, address: email }, // quoted properly, even for names with ( ) or commas
-      subject: listing ? `${what}: ${listing} (${name})` : `${what} from ${name}`,
-      html: renderEmail({
-        preheader: message ? message.slice(0, 120) : `${name} filled in the ${what.toLowerCase()} form.`,
-        eyebrow: `New ${what.toLowerCase()}`,
-        title: listing ? listing : `${name} reached out`,
-        intro: listing
-          ? `${name} wants more information about this listing. Reply to this email to answer them directly.`
-          : `${name} sent a message through rvparksales.com. Reply to this email to answer them directly.`,
-        sections: [
-          { heading: 'Contact', rows: [['Name', name], ['Email', email, `mailto:${email}`], ['Phone', phone, telHref], ['I am a', role]] },
-          { heading: 'Details', rows: [...(listing ? [['Listing', listing, listingUrl]] : []), ...extra] },
-        ],
-        message: { text: message },
-        buttons: [
-          { label: 'Reply to customer', href: `mailto:${email}?subject=${encodeURIComponent(`Re: ${listing || what}`)}` },
-          ...(telHref ? [{ label: 'Call', href: telHref }] : []),
-          ...(listingUrl ? [{ label: 'View listing', href: listingUrl }] : []),
-        ],
-      }),
-    });
-    // To the visitor: a branded receipt, so they know it arrived. Best-effort.
+    const send = (to, html) => transporter.sendMail({ from: `RVParkSales.com <${GMAIL_USER}>`, to, replyTo: { name, address: email }, subject, html });
+
+    // Marie always.
+    await send(MARIE, alert(others.length ? `A copy was also sent to ${others.map((r) => `${r.name} (${r.email})`).join(' and ')}.` : ''));
+    // The broker / developer / owner it's about. One failing doesn't stop the rest.
+    await Promise.all(others.map((r) => send({ name: r.name, address: r.email },
+      alert(r.why === 'owner' ? 'This came from your listing on RVParkSales.com. Marie Hansen has a copy.' : 'Marie Hansen has a copy.'))
+      .catch((e) => console.error(`Copy to ${r.email} not sent:`, e.message))));
+
+    // The visitor: a branded receipt, so they know it arrived. Best-effort.
+    const who = others.length ? `${others.map((r) => (r.why === 'owner' ? 'the owner' : r.name)).join(' and ')} and our team` : 'our team';
     await transporter.sendMail({
       from: `Marie Hansen, RVParkSales.com <${GMAIL_USER}>`,
       to: { name, address: email },
-      replyTo: 'marie@rvparksales.com',
+      replyTo: others[0] ? { name: others[0].name, address: others[0].email } : MARIE,
       subject: listing ? `We received your question about ${listing}` : 'We received your message | RVParkSales.com',
       html: renderEmail({
         preheader: 'Thanks for reaching out. We will be in touch shortly.',
         eyebrow: 'Message received',
         title: `Thanks, ${name.split(' ')[0]}!`,
-        intro: listing
-          ? `We received your request for more information about ${listing}. We will be in touch shortly with the details.`
-          : 'We received your message and will be in touch shortly. If it is urgent, call us at (850) 832-0022.',
-        sections: [{ heading: 'What you sent', rows: [...(listing ? [['Listing', listing, listingUrl]] : []), ['Name', name], ['Email', email], ['Phone', phone]] }],
+        intro: `${listing ? `We received your request for more information about ${listing}.` : 'We received your message.'} It has been sent to ${who}, and you will hear back shortly. If it is urgent, call us at (850) 832-0022.`,
+        sections: [{ heading: 'What you sent', rows: [...(listing ? [['Listing', listing, pageUrl]] : []), ['Name', name], ['Email', email], ['Phone', phone]] }],
         message: { heading: 'Your message', text: message },
         buttons: [
-          listingUrl ? { label: 'Back to the listing', href: listingUrl } : { label: 'Browse parks for sale', href: 'https://www.rvparksales.com/listings/?_listing_status=for-sale' },
+          listing && pageUrl ? { label: 'Back to the listing', href: pageUrl } : { label: 'Browse parks for sale', href: 'https://www.rvparksales.com/listings/?_listing_status=for-sale' },
           { label: 'Get first look access', href: 'https://rvparkselect.com/#pricing' },
         ],
         closing: 'Marie Hansen, RVParkSales.com',

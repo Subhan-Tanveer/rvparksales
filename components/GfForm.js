@@ -7,7 +7,8 @@ const Req = () => <span className="gf-req">(Required)</span>;
 // Renders a form in the old Gravity Forms look from a small field list and
 // sends it to /api/contact (which emails Marie). Field types: name, text,
 // email, email2 (with confirm), phone, select, radio, textarea, address.
-export function GfForm({ form, fields, extra = {}, onDone }) {
+// `about` ({ kind: 'broker' | 'developer', slug }) also sends the message to that person.
+export function GfForm({ form, fields, extra = {}, about, onDone }) {
   const [state, setState] = useState({ status: 'idle', message: '' });
 
   async function onSubmit(e) {
@@ -30,7 +31,7 @@ export function GfForm({ form, fields, extra = {}, onDone }) {
     try {
       const res = await fetch('/api/contact/', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ form, name, email: get('email'), phone: get('phone'), message, website: get('website'), details }),
+        body: JSON.stringify({ form, name, email: get('email'), phone: get('phone'), message, website: get('website'), details, about }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Something went wrong. Please call 850-832-0022.');

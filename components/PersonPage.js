@@ -77,7 +77,7 @@ export default function PersonPage({ person, kind }) {
       </section>
       <div className="mobile-cta"><button type="button" className="btn btn-block person-contact">Get More Information</button></div>
       <GfPopup triggerClass="person-contact" title={`Contact ${person.name}`} form={`${label} Contact`}
-        fields={isBroker ? BROKER_FIELDS : DEV_FIELDS} extra={{ [label]: person.name, [`${label} Link`]: url }} />
+        fields={isBroker ? BROKER_FIELDS : DEV_FIELDS} extra={{ [label]: person.name, [`${label} Link`]: url }} about={{ kind, slug: person.slug }} />
     </>
   );
 }
