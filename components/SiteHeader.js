@@ -36,6 +36,7 @@ const MENU = [
     label: 'Resources', href: '/blog-buying-and-selling-rv-parks/',
     sub: [
       { label: 'Blog', href: '/blog-buying-and-selling-rv-parks/' },
+      { label: 'RV Park Services', href: '/services/' },
       { label: 'FAQ', href: '/faq/' },
       { label: 'Reviews', href: '/reviews/' },
       { label: 'About Us', href: '/about-selling-an-rv-park/' },

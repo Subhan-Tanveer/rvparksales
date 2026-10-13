@@ -40,6 +40,7 @@ export default function Dashboard() {
     ['/admin/faq/', s.faq, 'FAQ questions', 'help'],
     ['/admin/brokers/', s.brokers, 'Brokers', 'user'],
     ['/admin/developers/', s.developers, 'Developers', 'user'],
+    ['/admin/vendors/', s.vendors, 'RV park services', 'dollar'],
   ] : [];
 
   return (
