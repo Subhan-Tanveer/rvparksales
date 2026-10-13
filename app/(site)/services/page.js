@@ -49,7 +49,7 @@ export default async function ServicesPage() {
           </ul>
           <div style={{ height: 24 }} />
           {pay
-            ? <a href={pay} className="btn btn-lg" target="_blank" rel="noopener">Get Listed, ${VENDOR_PRICE}/month</a>
+            ? <a href={pay} className="btn btn-lg">Get Listed, ${VENDOR_PRICE}/month</a>
             : <button type="button" className="btn btn-lg vendor-list">Get Listed, ${VENDOR_PRICE}/month</button>}
         </div>
       </section>

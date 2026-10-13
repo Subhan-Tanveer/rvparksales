@@ -555,3 +555,7 @@ h1, h2, h3 { overflow-wrap: break-word; }
   .nav-desk .drop a:hover { color: var(--blue); background: var(--bg-alt); }
 }
 @media (min-width: 1440px) { .nav-desk > ul > li > a { padding: 10px 14px; font-size: .85rem; } .nav-desk > ul > li > a::after { left: 14px; right: 14px; } }
+
+/* Vendors and Services: the Get Listed list sits on a light background */
+#get-listed .tick-list li { color: #1d2026 !important; }
+#get-listed .tick-list li::before, #get-listed .tick-list li:before { opacity: 1; }
