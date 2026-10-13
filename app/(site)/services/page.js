@@ -5,7 +5,7 @@ import { vendors, loadContent } from '@/lib/content';
 import { VENDOR_CATEGORIES, VENDOR_PRICE } from '@/lib/vendor-categories';
 
 export const metadata = {
-  title: 'RV Park Services',
+  title: 'Vendors and Services',
   description: 'Lenders, feasibility and market studies, appraisers, insurance and more: trusted services for RV park buyers, owners and developers.',
   alternates: { canonical: '/services/' },
 };
@@ -17,7 +17,7 @@ const FIELDS = [
   { key: 'company', type: 'text', label: 'Company Name', required: true },
   { key: 'companysite', type: 'text', label: 'Company Website' },
   { key: 'category', type: 'select', label: 'Category', required: true, options: VENDOR_CATEGORIES },
-  { key: 'message', type: 'textarea', label: 'Tell us about your services', required: true },
+  { key: 'message', type: 'textarea', label: 'What does your company do or provide? (a short description for your listing)', required: true },
 ];
 
 export default async function ServicesPage() {
@@ -25,7 +25,7 @@ export default async function ServicesPage() {
   const pay = process.env.VENDOR_PAYMENT_URL;
   return (
     <>
-      <PageBand title="RV Park Services" kicker="All things RV park" sub="Lenders, feasibility and market studies, appraisers, insurance and more: trusted services for RV park buyers, owners and developers." crumbs={[{ label: 'Services' }]}>
+      <PageBand title="Vendors and Services" kicker="All things RV park" sub="Lenders, feasibility and market studies, appraisers, insurance and more: trusted services for RV park buyers, owners and developers." crumbs={[{ label: 'Services' }]}>
         <button type="button" className="btn btn-lg vendor-list">Get Listed</button>
       </PageBand>
       <section className="l-section s-medium-72">
@@ -38,11 +38,11 @@ export default async function ServicesPage() {
       <section className="l-section s-medium-72" id="get-listed">
         <div className="l-section-h">
           <h2>Put your company in front of RV park buyers</h2>
-          <p className="lead-p">Do you serve RV park owners, buyers or developers? A listing in the RV Park Services directory puts your firm where they are already looking.</p>
+          <p className="lead-p">Do you serve RV park owners, buyers or developers? A listing in the Vendors and Services directory puts your firm where they are already looking.</p>
           <div style={{ height: 24 }} />
           <h3>${VENDOR_PRICE} per month</h3>
           <ul className="tick-list">
-            <li>Your own page with logo, description, service area and contact details</li>
+            <li>Your own page with your logo, a short description of what you do or provide, your service area and contact details</li>
             <li>Searchable by category on RVParkSales.com</li>
             <li>Inquiries from your listing come straight to you</li>
             <li>Cancel any time</li>
@@ -53,7 +53,7 @@ export default async function ServicesPage() {
             : <button type="button" className="btn btn-lg vendor-list">Get Listed, ${VENDOR_PRICE}/month</button>}
         </div>
       </section>
-      <GfPopup triggerClass="vendor-list" title="Get Listed in RV Park Services" width={800} form="Services Directory Listing" fields={FIELDS} />
+      <GfPopup triggerClass="vendor-list" title="Get Listed in Vendors and Services" width={800} form="Services Directory Listing" fields={FIELDS} />
     </>
   );
 }

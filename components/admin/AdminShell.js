@@ -32,7 +32,7 @@ const NAV = [
     ['/admin/faq/', 'FAQ', 'help'],
     ['/admin/brokers/', 'Brokers (all sites)', 'user'],
     ['/admin/developers/', 'Developers', 'user'],
-    ['/admin/vendors/', 'RV Park Services', 'dollar'],
+    ['/admin/vendors/', 'Vendors and Services', 'dollar'],
   ]],
   ['RVParkSelect.com', [
     ['/admin/select-members/', 'Members', 'user'],
