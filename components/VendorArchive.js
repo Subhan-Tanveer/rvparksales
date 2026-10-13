@@ -6,6 +6,8 @@ import Select from '@/components/fx/Select';
 // RV Park Services directory: Search and Category filters on the left, cards
 // (logo, name, category badge, one-line description) on the right. Same layout
 // as the Brokers and Developers pages.
+const initials = (name = '') => name.replace(/\.(com|net|org|co)$/i, '').split(/[\s.&-]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '•';
+
 export default function VendorArchive({ vendors }) {
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
@@ -34,12 +36,18 @@ export default function VendorArchive({ vendors }) {
         ) : (
           <div className="people-grid">
             {shown.map((v) => (
-              <Link key={v.slug} href={`/services/${v.slug}/`} className="pcard" aria-label={v.name}>
-                <div className="pcard-in">
-                  <div className="pcard-img">{v.logo ? <img src={v.logo} alt={v.name} loading="lazy" style={{ objectFit: 'contain', background: '#fff' }} /> : null}</div>
+              <Link key={v.slug} href={`/services/${v.slug}/`} className="vcard" aria-label={v.name}>
+                <div className="vcard-cover">
+                  {v.images?.[0] && <img src={v.images[0]} alt="" loading="lazy" />}
+                  <div className="vcard-logo">{v.logo ? <img src={v.logo} alt={`${v.name} logo`} loading="lazy" /> : <span>{initials(v.name)}</span>}</div>
+                  {v.plan === 'featured' && <span className="vcard-flag">Featured</span>}
+                </div>
+                <div className="vcard-body">
+                  {v.category && <span className="vcard-cat">{v.category}</span>}
                   <h3>{v.name}</h3>
-                  {v.category && <span className="state">{v.category}</span>}
-                  {v.tagline && <p style={{ margin: '10px 0 0', fontSize: '.95rem', lineHeight: 1.5 }}>{v.tagline}</p>}
+                  {v.tagline && <p>{v.tagline}</p>}
+                  {v.serviceArea && <p className="vcard-area">{v.serviceArea}</p>}
+                  <span className="vcard-more">View profile <span aria-hidden="true">→</span></span>
                 </div>
               </Link>
             ))}

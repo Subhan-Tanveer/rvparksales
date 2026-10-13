@@ -1,6 +1,6 @@
 import PageBand from '@/components/PageBand';
 import VendorArchive from '@/components/VendorArchive';
-import { GfPopup } from '@/components/GfForm';
+import VendorApply from '@/components/VendorApply';
 import { vendors, loadContent } from '@/lib/content';
 import { VENDOR_CATEGORIES, VENDOR_PRICE } from '@/lib/vendor-categories';
 
@@ -10,23 +10,12 @@ export const metadata = {
   alternates: { canonical: '/services/' },
 };
 
-const FIELDS = [
-  { key: 'name', type: 'text', label: 'Your Name', required: true },
-  { key: 'email', type: 'email', label: 'Email', required: true, half: true },
-  { key: 'phone', type: 'phone', label: 'Phone', half: true },
-  { key: 'company', type: 'text', label: 'Company Name', required: true },
-  { key: 'companysite', type: 'text', label: 'Company Website' },
-  { key: 'category', type: 'select', label: 'Category', required: true, options: VENDOR_CATEGORIES },
-  { key: 'message', type: 'textarea', label: 'What does your company do or provide? (a short description for your listing)', required: true },
-];
-
 export default async function ServicesPage() {
   await loadContent();
-  const pay = process.env.VENDOR_PAYMENT_URL;
   return (
     <>
       <PageBand title="Vendors and Services" kicker="All things RV park" sub="Lenders, feasibility and market studies, appraisers, insurance and more: trusted services for RV park buyers, owners and developers." crumbs={[{ label: 'Services' }]}>
-        <button type="button" className="btn btn-lg vendor-list">Get Listed</button>
+        <a href="#get-listed" className="btn btn-lg">Get Listed</a>
       </PageBand>
       <section className="l-section s-medium-72">
         <div className="l-section-h">
@@ -42,18 +31,16 @@ export default async function ServicesPage() {
           <div style={{ height: 24 }} />
           <h3>${VENDOR_PRICE} per month</h3>
           <ul className="tick-list">
-            <li>Your own page with your logo, a short description of what you do or provide, your service area and contact details</li>
+            <li>Your own page with your logo, up to 6 photos, a short description of what you do and your contact details</li>
+            <li>Live as soon as you pay: no waiting, no emailing files</li>
             <li>Searchable by category on RVParkSales.com</li>
             <li>Inquiries from your listing come straight to you</li>
             <li>Cancel any time</li>
           </ul>
-          <div style={{ height: 24 }} />
-          {pay
-            ? <a href={pay} className="btn btn-lg">Get Listed, ${VENDOR_PRICE}/month</a>
-            : <button type="button" className="btn btn-lg vendor-list">Get Listed, ${VENDOR_PRICE}/month</button>}
+          <div style={{ height: 32 }} />
+          <VendorApply categories={VENDOR_CATEGORIES} price={VENDOR_PRICE} />
         </div>
       </section>
-      <GfPopup triggerClass="vendor-list" title="Get Listed in Vendors and Services" width={800} form="Services Directory Listing" fields={FIELDS} />
     </>
   );
 }

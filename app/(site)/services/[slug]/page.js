@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import PageBand from '@/components/PageBand';
+import ListingGallery from '@/components/ListingGallery';
 import { GfPopup } from '@/components/GfForm';
 import { vendors, vendorBySlug, textOf, autop, SITE, loadContent } from '@/lib/content';
 
@@ -48,11 +49,13 @@ export default async function ServicePage({ params }) {
               {v.contactName && <span><b>Contact&nbsp;</b>{v.contactName}</span>}
             </div>
             <hr className="hr-line" />
-            {v.logo && <img className="person-img" src={v.logo} alt={v.name} style={{ maxWidth: 300, height: 'auto', objectFit: 'contain' }} />}
-            {v.tagline && <p className="lead-p">{v.tagline}</p>}
+            <div className="vprofile-head">
+              {v.logo && <img className="vprofile-logo" src={v.logo} alt={`${v.name} logo`} />}
+              {v.tagline && <p className="lead-p">{v.tagline}</p>}
+            </div>
+            {v.images?.length > 0 && <><hr className="hr-line" /><ListingGallery photos={v.images} title={v.name} /></>}
             <hr className="hr-line" />
-            <h2 style={{ margin: '0 0 27px' }}>About</h2>
-            <div className="prose" dangerouslySetInnerHTML={{ __html: autop(v.bioHtml || '') }} />
+            {v.bioHtml && <><h2 style={{ margin: '0 0 27px' }}>About</h2><div className="prose" dangerouslySetInnerHTML={{ __html: autop(v.bioHtml) }} /></>}
             <div style={{ height: 81 }} />
           </div>
           <aside className="detail-side">

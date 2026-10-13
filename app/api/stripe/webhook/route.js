@@ -48,6 +48,21 @@ async function notifyMarie(subject, title, intro, rows) {
 async function publish(session) {
   const list = withIds('vendors', await readFresh('vendors'));
   if (list.some((v) => v.stripeSubscriptionId && v.stripeSubscriptionId === session.subscription)) return; // Stripe retry
+  const paid = {
+    publishState: 'publish', paidThrough: dateOf(Date.now() / 1000 + 30 * 86400),
+    stripeCustomerId: session.customer || null, stripeSubscriptionId: session.subscription || null,
+  };
+  // Signed up on our form first (logo, photos, details): publish that listing.
+  const k = session.client_reference_id ? list.findIndex((v) => v.id === session.client_reference_id) : -1;
+  if (k >= 0) {
+    const v = list[k] = { ...list[k], ...paid, phone: list[k].phone || session.customer_details?.phone || '', createdAt: new Date().toISOString() };
+    await writeCollection('vendors', list);
+    await notifyMarie(`New paid listing: ${v.name}`, `${v.name} just got listed`,
+      `${v.name} paid $29 and their listing is live at /services/${v.slug}/, with their logo and photos. Nothing for you to do unless you want to edit it.`,
+      [['Company', v.name], ['Category', v.category], ['What they do', v.tagline], ['Email', v.email, v.email ? `mailto:${v.email}` : null], ['Phone', v.phone], ['Photos', `${(v.images || []).length} photo(s)${v.logo ? ' + logo' : ''}`], ['Listing', `rvparksales.com/services/${v.slug}/`, `https://www.rvparksales.com/services/${v.slug}/`]]);
+    return;
+  }
+  // Paid on the Stripe link directly (no sign-up form): build it from checkout.
   const name = String(field(session, 'companyname')?.text?.value || session.customer_details?.name || 'New vendor').trim().slice(0, 120);
   const category = CATEGORY_BY_VALUE[field(session, 'category')?.dropdown?.value] || VENDOR_CATEGORIES[10];
   const tagline = String(field(session, 'whatwedo')?.text?.value || '').trim().slice(0, 255);
@@ -56,11 +71,9 @@ async function publish(session) {
   for (let i = 2; taken.has(slug); i++) slug = `${slugify(name)}-${i}`;
   const item = {
     id: `vendors-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
-    name, slug, category, plan: 'listed', publishState: 'publish',
+    name, slug, category, plan: 'listed', ...paid,
     tagline, email: session.customer_details?.email || '', phone: session.customer_details?.phone || '',
-    contactName: session.customer_details?.name || '', paidThrough: dateOf(Date.now() / 1000 + 30 * 86400),
-    stripeCustomerId: session.customer || null, stripeSubscriptionId: session.subscription || null,
-    createdAt: new Date().toISOString(),
+    contactName: session.customer_details?.name || '', createdAt: new Date().toISOString(),
   };
   list.unshift(item);
   await writeCollection('vendors', list);
