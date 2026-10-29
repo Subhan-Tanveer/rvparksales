@@ -5,6 +5,7 @@ import { cleanHtml, autop } from '@/lib/content';
 import { SCHEMAS, SOURCE, withIds, slugify } from '@/lib/admin-schema';
 import { syncListingToSelect, syncBrokersToSelect, siteOrigin, applySyncResult } from '@/lib/select-sync';
 import { statsFor } from '@/lib/stats';
+import { needsLiveNotice, sendLiveNotice } from '@/lib/live-notice';
 
 // The admin's data API, one collection at a time:
 //   GET     everything in the collection (rich text cleaned up for the editor)
@@ -117,7 +118,13 @@ export async function POST(req, { params }) {
   let select;
   if (name === 'listings') {
     select = await syncListingToSelect(saved, { origin: siteOrigin(req.url) });
-    if (applySyncResult(saved, select)) await writeCollection(name, list).catch(() => {});
+    let changed = applySyncResult(saved, select);
+    // An RVParkAds park just made public: tell the seller (once).
+    if (needsLiveNotice(saved) && await sendLiveNotice(saved).catch((e) => console.error('live notice', e?.message))) {
+      saved.liveNotifiedAt = new Date().toISOString();
+      changed = true;
+    }
+    if (changed) await writeCollection(name, list).catch(() => {});
   }
   if (name === 'brokers') {
     // A renamed broker stays on the listings that name them.
