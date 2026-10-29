@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { readFresh, writeCollection } from '@/lib/store';
 import { withIds, slugify, now } from '@/lib/admin-schema';
 import { syncListingToSelect, applySyncResult, siteOrigin } from '@/lib/select-sync';
+import { placeListing } from '@/lib/geocode';
 
 // POST /api/import-listing — RVParkAds.com sends every seller submission and
 // edit here (its SELECT_SITE_URL points at this site), with its shared
@@ -28,6 +29,7 @@ export async function POST(req) {
   const list = withIds('listings', await readFresh('listings'));
   let l = list.find((x) => String(x.adsListingId) === String(b.sourceAdsListingId));
   const created = !l;
+  const prevAddress = l ? l.address || '' : null;
 
   const media = { images: (b.photoUrls || []).filter((u) => typeof u === 'string'), videoUrls: (b.videoUrls || []).filter((u) => typeof u === 'string') };
   const details = {
@@ -81,6 +83,9 @@ export async function POST(req) {
     l.featured = PLAN_FEATURED[b.planKey];
     l.adsPlan = PLAN_NAMES[b.planKey];
   }
+
+  // Map pin (and state) from the seller's address: RVParkAds sends neither.
+  await placeListing(l, prevAddress).catch(() => {});
 
   await writeCollection('listings', list);
   // On to RVParkSelect: members see it now; matching members are emailed for a new park.

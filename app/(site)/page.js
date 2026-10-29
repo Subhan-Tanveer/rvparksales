@@ -49,7 +49,7 @@ const RESOURCES = [
 export default async function Home() {
   await loadContent();
   const forSale = listingsForSale();
-  const points = forSale.filter((l) => l.lat && l.lng).map((l) => ({ lat: l.lat, lng: l.lng }));
+  const points = forSale.filter((l) => l.lat && l.lng).map((l) => ({ lat: Number(l.lat), lng: Number(l.lng) }));
   const stats = { forSale: forSale.length, states: new Set(forSale.map((l) => l.state).filter(Boolean)).size };
   const featured = forSale.filter((l) => l.featuredImage)
     .sort((a, b) => (b.featured === 'spotlight') - (a.featured === 'spotlight'))

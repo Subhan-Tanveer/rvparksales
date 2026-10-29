@@ -6,6 +6,7 @@ import { SCHEMAS, SOURCE, withIds, slugify } from '@/lib/admin-schema';
 import { syncListingToSelect, syncBrokersToSelect, siteOrigin, applySyncResult } from '@/lib/select-sync';
 import { statsFor } from '@/lib/stats';
 import { needsLiveNotice, sendLiveNotice } from '@/lib/live-notice';
+import { placeListing } from '@/lib/geocode';
 
 // The admin's data API, one collection at a time:
 //   GET     everything in the collection (rich text cleaned up for the editor)
@@ -92,6 +93,9 @@ export async function POST(req, { params }) {
     clean.images = (clean.images || []).filter(Boolean);
     clean.featuredImage = clean.images[0] || null;
     ['priceUsd', 'sites', 'acres'].forEach((k) => { if (clean[k] === '') clean[k] = null; });
+    // Map pin from the address, so the park shows on the home page globe.
+    const prev = list.find((x) => x.id === clean.id);
+    await placeListing(clean, prev ? prev.address || '' : null).catch(() => {});
   }
   if (name === 'posts') {
     const cats = await load('categories');

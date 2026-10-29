@@ -264,7 +264,7 @@ function Location({ item, set }) {
       const { geocode } = await import('@/components/googleMaps');
       const hit = await geocode(item.address);
       if (!hit) { setMsg('Could not find that address. Check it, or type the coordinates below.'); return; }
-      set('lat', String(hit.lat)); set('lng', String(hit.lng));
+      set('lat', String(hit.lat)); set('lng', String(hit.lng)); set('geoAddress', item.address);
       setMsg('Map pin updated.');
     } catch { setMsg('Map lookup is not available right now.'); }
   }
@@ -276,10 +276,10 @@ function Location({ item, set }) {
         <button type="button" className="ab" onClick={find}>Find on map</button>
       </div>
       <div className="af-latlng">
-        <div className="af"><label>Latitude</label><input type="text" value={item.lat || ''} onChange={(e) => set('lat', e.target.value)} /></div>
-        <div className="af"><label>Longitude</label><input type="text" value={item.lng || ''} onChange={(e) => set('lng', e.target.value)} /></div>
+        <div className="af"><label>Latitude</label><input type="text" value={item.lat || ''} onChange={(e) => { set('lat', e.target.value); set('geoAddress', item.address); }} /></div>
+        <div className="af"><label>Longitude</label><input type="text" value={item.lng || ''} onChange={(e) => { set('lng', e.target.value); set('geoAddress', item.address); }} /></div>
       </div>
-      {msg && <span className="af-hint">{msg}</span>}
+      <span className="af-hint">{msg || 'The map pin is found from the address automatically when you save. Use Find on map to check it first.'}</span>
       {has && <iframe className="af-map" title="Map preview" loading="lazy" src={`https://www.google.com/maps?q=${encodeURIComponent(`${item.lat},${item.lng}`)}&z=11&output=embed`} />}
     </div>
   );
