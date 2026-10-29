@@ -5,7 +5,7 @@ import { cleanHtml, autop } from '@/lib/content';
 import { SCHEMAS, SOURCE, withIds, slugify } from '@/lib/admin-schema';
 import { syncListingToSelect, syncBrokersToSelect, siteOrigin, applySyncResult } from '@/lib/select-sync';
 import { statsFor } from '@/lib/stats';
-import { needsLiveNotice, sendLiveNotice } from '@/lib/live-notice';
+import { liveNoticeRecipient, sendLiveNotice } from '@/lib/live-notice';
 import { placeListing } from '@/lib/geocode';
 
 // The admin's data API, one collection at a time:
@@ -123,8 +123,9 @@ export async function POST(req, { params }) {
   if (name === 'listings') {
     select = await syncListingToSelect(saved, { origin: siteOrigin(req.url) });
     let changed = applySyncResult(saved, select);
-    // An RVParkAds park just made public: tell the seller (once).
-    if (needsLiveNotice(saved) && await sendLiveNotice(saved).catch((e) => console.error('live notice', e?.message))) {
+    // A park just made public: tell its seller or broker (once).
+    const brokers = await load('brokers');
+    if (liveNoticeRecipient(saved, brokers) && await sendLiveNotice(saved, brokers).catch((e) => console.error('live notice', e?.message))) {
       saved.liveNotifiedAt = new Date().toISOString();
       changed = true;
     }
