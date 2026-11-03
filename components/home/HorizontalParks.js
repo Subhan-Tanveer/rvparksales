@@ -50,8 +50,10 @@ export default function HorizontalParks({ items, total }) {
           <Link key={l.slug} href={`/listing/${l.slug}/`} className="hp-card" data-cursor="View">
             <span className="hp-img"><img src={thumb(l.image)} alt="" loading="lazy" /></span>
             <span className="hp-n">{String(i + 1).padStart(2, '0')}</span>
-            <span className="hp-state">{l.state}</span>
-            {l.featured && <span className="hp-feat">★ Featured</span>}
+            <span className="hp-tags">
+              <span className="hp-state">{l.state}</span>
+              {l.featured && <span className="hp-feat">★ Featured</span>}
+            </span>
             <span className="hp-body">
               <span className="hp-name">{l.title}</span>
               <span className="hp-meta">
