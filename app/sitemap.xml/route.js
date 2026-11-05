@@ -1,3 +1,4 @@
+import { US_STATES } from '@/lib/states';
 import { allListings, brokers, developers, vendors, posts, pages, categories, statesWithListings, stateSlug, SITE, loadContent } from '@/lib/content';
 
 // A plain route handler (not Next's special sitemap.js file) so it also builds
@@ -25,7 +26,7 @@ export async function GET() {
     ['/developers/', 'monthly', 0.4],
     ['/services/', 'weekly', 0.6],
     ...vendors().map((v) => [`/services/${v.slug}/`, 'monthly', 0.4]),
-    ...statesWithListings().map((st) => [`/listing-state/${stateSlug(st)}/`, 'weekly', 0.6]),
+    ...US_STATES.map((st) => [`/listing-state/${stateSlug(st)}/`, 'weekly', statesWithListings().includes(st) ? 0.7 : 0.5]),
     ...developers().map((d) => [`/developer/${d.slug}/`, 'monthly', 0.4]),
     ...allListings().map((l) => [`/listing/${l.slug}/`, 'weekly', l.status === 'For Sale' ? 0.8 : 0.4, l.updatedAt || l.createdAt || l.date]),
     ...brokers().map((b) => [`/broker/${b.slug}/`, 'monthly', 0.5]),

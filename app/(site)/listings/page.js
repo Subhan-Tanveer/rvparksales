@@ -2,8 +2,9 @@ import { Suspense } from 'react';
 import ListingsArchive from '@/components/ListingsArchive';
 import PageBand from '@/components/PageBand';
 import ParkIndex from '@/components/ParkIndex';
+import { US_STATES } from '@/lib/states';
 import { JsonLd, breadcrumbs, itemList } from '@/lib/seo';
-import { allListings, featuredRank, statesWithListings, loadContent } from '@/lib/content';
+import { allListings, featuredRank, loadContent } from '@/lib/content';
 
 export const metadata = {
   title: { absolute: 'RV Parks for Sale & Campgrounds for Sale | RV Park Sales' },
@@ -29,7 +30,7 @@ export default async function ListingsPage() {
       <Suspense fallback={<p style={{ padding: 40 }}>Loading listings…</p>}>
         <ListingsArchive listings={leanListings()} />
       </Suspense>
-      <ParkIndex title="Every RV park and campground on RVParkSales.com" listings={all} states={statesWithListings()} />
+      <ParkIndex title="Every RV park and campground on RVParkSales.com" listings={all} states={US_STATES} />
     </>
   );
 }
