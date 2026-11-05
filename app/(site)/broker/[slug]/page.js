@@ -10,7 +10,7 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const b = brokerBySlug(slug);
   if (!b) return {};
-  return { title: b.name, description: textOf(b.bioHtml, 155) || `${b.name}, RV park broker on RVParkSales.com.`, alternates: { canonical: `/broker/${b.slug}/` } };
+  return { title: `${b.name}, RV Park Broker`, description: textOf(b.bioHtml, 155) || `${b.name}, RV park broker on RVParkSales.com.`, alternates: { canonical: `/broker/${b.slug}/` } };
 }
 
 export default async function BrokerPage({ params }) {

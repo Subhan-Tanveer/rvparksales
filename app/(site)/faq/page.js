@@ -3,7 +3,7 @@ import FaqAccordion from '@/components/FaqAccordion';
 import { SITE, loadContent, faqs } from '@/lib/content';
 
 export const metadata = {
-  title: 'FAQ',
+  title: { absolute: 'RV Park Buying & Selling FAQ | RV Park Sales' },
   description: 'Answers to common questions about RVParkSales.com, selling an RV park or campground, broker listings and advertising plans.',
   alternates: { canonical: '/faq/' },
 };

@@ -1,4 +1,5 @@
 import SiteShell from '@/components/SiteShell';
+import { JsonLd, organization, website } from '@/lib/seo';
 
 // Public pages: wrapped in the site shell (header, footer, motion).
 // Refreshed at least hourly, so Early access parks go public on their date
@@ -6,5 +7,10 @@ import SiteShell from '@/components/SiteShell';
 export const revalidate = 3600;
 
 export default function SiteLayout({ children }) {
-  return <SiteShell>{children}</SiteShell>;
+  return (
+    <>
+      <JsonLd data={[organization, website]} />
+      <SiteShell>{children}</SiteShell>
+    </>
+  );
 }

@@ -4,7 +4,8 @@ import ListingGallery from '@/components/ListingGallery';
 import PageBand from '@/components/PageBand';
 import ListingPopups from '@/components/ListingPopups';
 import ViewTracker from '@/components/ViewTracker';
-import { allListings, listingBySlug, textOf, metaTitle, SITE, loadContent } from '@/lib/content';
+import { allListings, listingBySlug, textOf, metaTitle, SITE, loadContent, stateSlug } from '@/lib/content';
+import { JsonLd, absUrl, isoDate, breadcrumbs, ORG_ID } from '@/lib/seo';
 
 export async function generateStaticParams() {
   await loadContent(); return allListings().map((l) => ({ slug: l.slug })); }
@@ -15,10 +16,10 @@ export async function generateMetadata({ params }) {
   const l = listingBySlug(slug);
   if (!l) return {};
   return {
-    title: metaTitle(l),
+    title: l.seoTitle ? metaTitle(l) : (l.status === 'For Sale' && !/for sale/i.test(l.title) ? `${l.title} - For Sale` : l.title),
     description: l.seoDescription || textOf(l.summary || l.contentHtml, 155),
     alternates: { canonical: `/listing/${l.slug}/` },
-    openGraph: { images: l.featuredImage ? [l.featuredImage] : [] },
+    openGraph: { type: 'article', images: l.featuredImage ? [{ url: l.featuredImage, alt: l.title }] : [] },
   };
 }
 
@@ -65,15 +66,26 @@ export default async function ListingPage({ params }) {
     ['reddit', 'Share this', `https://www.reddit.com/submit?url=${enc(url)}&title=${enc(l.title)}`, 'M201.5 305.5c-13.8 0-24.9-11.1-24.9-24.6 0-13.8 11.1-24.9 24.9-24.9 13.6 0 24.6 11.1 24.6 24.9 0 13.6-11.1 24.6-24.6 24.6zM504 256c0 137-111 248-248 248S8 393 8 256 119 8 256 8s248 111 248 248zm-132.3-41.2c-9.4 0-17.7 3.9-23.8 10-22.4-15.5-52.6-25.5-86.1-26.6l17.4-78.3 55.4 12.5c0 13.6 11.1 24.6 24.6 24.6 13.8 0 24.9-11.3 24.9-24.9s-11.1-24.9-24.9-24.9c-9.7 0-18 5.8-22.1 13.8l-61.2-13.6c-3-.8-6.1 1.4-6.9 4.4l-19.1 86.4c-33.2 1.4-63.1 11.3-85.5 26.8-6.1-6.4-14.7-10.2-24.1-10.2-34.9 0-46.3 46.9-14.4 62.8-1.1 5-1.7 10.2-1.7 15.5 0 52.6 59.2 95.2 132 95.2 73.1 0 132.3-42.6 132.3-95.2 0-5.3-.6-10.8-1.9-15.8 31.3-16 19.8-62.5-14.9-62.5zM302.8 331c-18.2 18.2-76.1 17.9-93.6 0-2.2-2.2-6.1-2.2-8.3 0-2.5 2.5-2.5 6.4 0 8.6 22.8 22.8 87.3 22.8 110.2 0 2.5-2.2 2.5-6.1 0-8.6-2.2-2.2-6.1-2.2-8.3 0zm7.7-75c-13.6 0-24.6 11.1-24.6 24.9 0 13.6 11.1 24.6 24.6 24.6 13.8 0 24.9-11.1 24.9-24.6 0-13.8-11-24.9-24.9-24.9z'],
   ];
 
-  const jsonLd = {
-    '@context': 'https://schema.org', '@type': 'RealEstateListing', name: l.title, url,
-    description: textOf(l.summary || l.contentHtml, 300), image: photos.slice(0, 4),
-    ...(l.priceUsd && l.status !== 'Sold' ? { offers: { '@type': 'Offer', price: l.priceUsd, priceCurrency: 'USD' } } : {}),
+  const place = {
+    '@type': 'Place', name: l.title,
+    ...(l.address ? { address: { '@type': 'PostalAddress', streetAddress: l.address, addressLocality: l.city || undefined, addressRegion: l.state || undefined, addressCountry: 'US' } } : {}),
+    ...(l.lat && l.lng ? { geo: { '@type': 'GeoCoordinates', latitude: Number(l.lat), longitude: Number(l.lng) } } : {}),
   };
+  const jsonLd = [
+    {
+      '@type': 'RealEstateListing', name: l.title, url,
+      description: textOf(l.summary || l.contentHtml, 300), image: photos.slice(0, 6).map(absUrl),
+      ...(isoDate(l.date) ? { datePosted: isoDate(l.date) } : {}),
+      about: place, contentLocation: place,
+      ...(l.priceUsd && l.status === 'For Sale' ? { offers: { '@type': 'Offer', price: Number(l.priceUsd), priceCurrency: 'USD', availability: 'https://schema.org/InStock', seller: { '@id': ORG_ID } } } : {}),
+      provider: { '@id': ORG_ID },
+    },
+    breadcrumbs([['Home', '/'], ['RV Parks for Sale', '/listings/'], ...(l.state ? [[l.state, `/listing-state/${stateSlug(l.state)}/`]] : []), [l.title]]),
+  ];
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <PageBand image={l.featuredImage || '/images/site/1956989740-scaled.jpg'} />
       <section className="l-section">
         <div className="l-section-h detail">

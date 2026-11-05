@@ -4,8 +4,8 @@ import { GfPopup } from '@/components/GfForm';
 import { brokers, loadContent } from '@/lib/content';
 
 export const metadata = {
-  title: 'Brokers',
-  description: 'RV Park Brokers on RVParkSales.com: experienced brokers who specialize in RV parks and campgrounds.',
+  title: { absolute: 'RV Park Brokers & Campground Brokers | RV Park Sales' },
+  description: 'Find an experienced RV park broker or campground broker. Licensed brokers who specialize in selling RV parks, campgrounds and RV resorts across the USA.',
   alternates: { canonical: '/brokers/' },
 };
 

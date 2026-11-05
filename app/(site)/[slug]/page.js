@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import PageBand from '@/components/PageBand';
 import BlogSidebar from '@/components/BlogSidebar';
 import { posts, pages, postBySlug, pageBySlug, categoryLinks, textOf, metaTitle, SITE, loadContent } from '@/lib/content';
+import { JsonLd, absUrl, isoDate, breadcrumbs, ORG_ID } from '@/lib/seo';
 
 // Blog posts and ordinary pages both live at the root (/some-slug/) on the old
 // WordPress site, so they share this one route and keep their exact addresses.
@@ -60,14 +61,18 @@ function PostView({ p }) {
     ['whatsapp', 'Share this', `https://web.whatsapp.com/send?text=${enc(p.title + ' ' + url)}`],
     ['reddit', 'Share this', `https://www.reddit.com/submit?url=${enc(url)}&title=${enc(p.title)}`],
   ];
-  const jsonLd = {
-    '@context': 'https://schema.org', '@type': 'Article', headline: p.title, datePublished: p.date,
-    mainEntityOfPage: url, publisher: { '@type': 'Organization', name: 'RVParkSales.com' },
-    ...(p.author ? { author: { '@type': 'Person', name: p.author } } : {}),
-  };
+  const jsonLd = [
+    {
+      '@type': 'BlogPosting', headline: p.title, datePublished: isoDate(p.date), dateModified: isoDate(p.modified || p.updatedAt || p.date),
+      mainEntityOfPage: url, url, publisher: { '@id': ORG_ID },
+      ...(p.featuredImage ? { image: absUrl(p.featuredImage) } : {}),
+      author: { '@type': 'Person', name: p.author || 'Marie Hansen' },
+    },
+    breadcrumbs([['Home', '/'], ['Blog', '/blog-buying-and-selling-rv-parks/'], [p.title]]),
+  ];
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <PageBand image={p.featuredImage || undefined} />
       <section className="l-section">
         <div className="l-section-h blog-grid">

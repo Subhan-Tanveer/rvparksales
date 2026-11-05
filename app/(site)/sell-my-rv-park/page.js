@@ -8,7 +8,7 @@ import { SITE, testimonials, listingsForSale, loadContent } from '@/lib/content'
 import { AD_PLANS, buyerCount } from '@/lib/plans';
 
 export const metadata = {
-  title: { absolute: 'Top RV Park Broker at RV Park Sales - USA RV Parks For Sale' },
+  title: { absolute: 'Sell My RV Park or Campground | RV Park Broker & Marketing | RV Park Sales' },
   description: 'Get your RV park in front of thousands of qualified buyers. Sell with a broker, advertise it yourself with RVParkAds, or grow its value first with RVParkSuccess.',
   alternates: { canonical: '/sell-my-rv-park/' },
 };

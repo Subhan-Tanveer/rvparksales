@@ -12,8 +12,8 @@ import Marquee from '@/components/fx/Marquee';
 import { listingsForSale, statesForSale, posts, testimonials, featuredRank, SITE, loadContent } from '@/lib/content';
 
 export const metadata = {
-  title: { absolute: 'RV Park Sales - America’s RV Park Marketplace - RV Parks and Campgrounds For Sale' },
-  description: 'Buy, sell, advertise and grow RV parks and campgrounds. RVParkSales.com brings RV park buyers, sellers, brokers and owners together nationwide.',
+  title: { absolute: 'RV Parks for Sale & Campgrounds for Sale | RV Park Sales, America’s RV Park Marketplace' },
+  description: 'RV parks for sale and campgrounds for sale nationwide. Buy an RV park, sell your campground with an RV park broker, or advertise it to qualified buyers on RVParkSales.com.',
   alternates: { canonical: '/' },
 };
 

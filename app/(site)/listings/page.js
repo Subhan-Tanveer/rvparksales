@@ -1,11 +1,13 @@
 import { Suspense } from 'react';
 import ListingsArchive from '@/components/ListingsArchive';
 import PageBand from '@/components/PageBand';
-import { allListings, featuredRank, loadContent } from '@/lib/content';
+import ParkIndex from '@/components/ParkIndex';
+import { JsonLd, breadcrumbs, itemList } from '@/lib/seo';
+import { allListings, featuredRank, statesWithListings, loadContent } from '@/lib/content';
 
 export const metadata = {
-  title: 'RV Parks and Campgrounds For Sale',
-  description: 'Search RV parks, campgrounds, RV lots and RV/MH communities for sale across the USA.',
+  title: { absolute: 'RV Parks for Sale & Campgrounds for Sale | RV Park Sales' },
+  description: 'Browse RV parks for sale, campgrounds for sale, RV resorts, RV lots and RV/MH communities across the USA. Photos, prices, sites and acreage, updated daily.',
   alternates: { canonical: '/listings/' },
 };
 
@@ -19,12 +21,15 @@ function leanListings() {
 
 export default async function ListingsPage() {
   await loadContent();
+  const all = allListings();
   return (
     <>
+      <JsonLd data={[breadcrumbs([['Home', '/'], ['RV Parks for Sale']]), itemList(all.filter((l) => l.status === 'For Sale'))]} />
       <PageBand title="RV Parks & Campgrounds for Sale" kicker="Marketplace" sub="Search parks, campgrounds, RV lots and RV/MH communities across the USA. Use Filters to narrow by location, price, sites and more." crumbs={[{ label: 'RV Parks for Sale' }]} image="/images/site/Parks-for-sale.webp" compact />
       <Suspense fallback={<p style={{ padding: 40 }}>Loading listings…</p>}>
         <ListingsArchive listings={leanListings()} />
       </Suspense>
+      <ParkIndex title="Every RV park and campground on RVParkSales.com" listings={all} states={statesWithListings()} />
     </>
   );
 }

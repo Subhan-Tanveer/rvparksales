@@ -48,7 +48,7 @@ export default function HorizontalParks({ items, total }) {
         </div>
         {items.map((l, i) => (
           <Link key={l.slug} href={`/listing/${l.slug}/`} className="hp-card" data-cursor="View">
-            <span className="hp-img"><img src={thumb(l.image)} alt="" loading="lazy" /></span>
+            <span className="hp-img"><img src={thumb(l.image)} alt={`${l.title}${l.state ? `, ${l.state}` : ''}`} loading="lazy" /></span>
             <span className="hp-n">{String(i + 1).padStart(2, '0')}</span>
             <span className="hp-tags">
               <span className="hp-state">{l.state}</span>

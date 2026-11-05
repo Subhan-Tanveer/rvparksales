@@ -4,7 +4,7 @@ import { posts, loadContent } from '@/lib/content';
 
 const PER_PAGE = 10;
 export const metadata = {
-  title: { absolute: 'RV Park Sales - Florida - RV Campgrounds - RV Parks - Lots' },
+  title: { absolute: 'RV Park Blog: Buying, Selling & Valuing RV Parks | RV Park Sales' },
   description: 'Articles on buying an RV park, selling an RV park or campground, financing, valuation and getting the best price.',
   alternates: { canonical: '/blog-buying-and-selling-rv-parks/' },
 };

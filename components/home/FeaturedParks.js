@@ -33,7 +33,7 @@ export default function FeaturedParks({ items }) {
       >
         {items.map((l) => (
           <Link key={l.slug} href={`/listing/${l.slug}/`} className="feat-card" draggable={false}>
-            <span className="feat-img"><img src={thumb(l.image)} alt="" loading="lazy" draggable={false} /></span>
+            <span className="feat-img"><img src={thumb(l.image)} alt={l.title} loading="lazy" draggable={false} /></span>
             <span className="feat-shade" aria-hidden="true" />
             <span className="feat-state">{l.state}</span>
             <span className="feat-body">
