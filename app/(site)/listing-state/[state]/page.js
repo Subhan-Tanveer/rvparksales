@@ -22,7 +22,7 @@ const usd = (n) => `$${Number(n).toLocaleString('en-US')}`;
 function stateIntro(name, parks) {
   const forSale = parks.filter((l) => l.status === 'For Sale');
   const prices = forSale.map((l) => Number(l.priceUsd)).filter((n) => n > 0).sort((a, b) => a - b);
-  const towns = [...new Set(forSale.map((l) => l.city).filter(Boolean))].slice(0, 5);
+  const towns = [...new Set(forSale.map((l) => l.city).filter((c) => c && !/\d/.test(c)))].slice(0, 5);
   const parts = [];
   if (forSale.length) {
     parts.push(`There ${forSale.length === 1 ? 'is' : 'are'} ${forSale.length} RV ${forSale.length === 1 ? 'park or campground' : 'parks and campgrounds'} for sale in ${name} on RVParkSales.com right now`);
