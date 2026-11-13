@@ -50,6 +50,7 @@ export async function POST(req) {
     ownerFinancing: typeof b.ownerFinancing === 'boolean' ? b.ownerFinancing : null,
     contentHtml: toHtml(b.description),
     ownerName: s(b.sellerName), ownerEmail: s(b.sellerEmail), ownerPhone: s(b.sellerPhone),
+    ...(b.sellerRole === 'owner' || b.sellerRole === 'broker' ? { sellerRole: b.sellerRole } : {}),
   };
 
   if (created) {

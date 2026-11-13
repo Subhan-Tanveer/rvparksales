@@ -4,7 +4,7 @@ import ReviewWall from '@/components/home/ReviewWall';
 import SellerForm from '@/components/SellerForm';
 import Split from '@/components/fx/Split';
 import Marquee from '@/components/fx/Marquee';
-import { SITE, testimonials, listingsForSale, loadContent } from '@/lib/content';
+import { SITE, testimonials, listingsForSale, advertisingBrokers, loadContent } from '@/lib/content';
 import { AD_PLANS, buyerCount } from '@/lib/plans';
 
 export const metadata = {
@@ -34,6 +34,7 @@ export default async function SellPage() {
   const reviews = [...testimonials()].reverse().filter((t) => t.quote.length > 60).slice(0, 6);
   const forSale = listingsForSale().length;
   const buyers = await buyerCount();
+  const adBrokers = advertisingBrokers();
   return (
     <>
       <PageBand title="Get Your RV Park In Front of Thousands of Qualified Buyers" kicker="Sell my RV park" index="(Sellers)" image="/images/site/mobile-home-parks-1.jpg"
@@ -44,6 +45,29 @@ export default async function SellPage() {
           <button type="button" className="btn btn-lg btn-ghost seller-consultation">Talk to a Broker</button>
         </div>
       </PageBand>
+
+      {adBrokers.length > 0 && (
+        <section className="cn-sec cn-paper ad-brokers">
+          <div className="l-section-h">
+            <div className="cn-head">
+              <p className="eyebrow">Brokers advertising with RVParkSales</p>
+              <Split as="h2" text={'Meet our\n*brokers*'} className="cn-title" />
+            </div>
+            <div className="ab-grid" data-reveal="stagger">
+              {adBrokers.map((b) => (
+                <Link key={b.slug} href={`/broker/${b.slug}/`} className="ab-card">
+                  <img src={b.photo} alt={`${b.name}, RV park broker`} loading="lazy" />
+                  <b>{b.name}</b>
+                  {(b.brokerage || b.licenseState) && <span>{[b.brokerage, b.licenseState].filter(Boolean).join(' · ')}</span>}
+                </Link>
+              ))}
+            </div>
+            <div className="ab-cta">
+              <Link href="/brokers/" className="btn btn-lg btn-ink">Sell With a Broker</Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="cn-sec cn-paper">
         <div className="l-section-h sell-why">

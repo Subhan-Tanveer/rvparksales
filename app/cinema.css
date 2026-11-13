@@ -865,3 +865,12 @@ body { overflow: visible !important; }
 .park-index-list span { font-size: .88rem; opacity: .7; }
 .park-index-states { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px 22px; }
 .park-index-states a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Sell page: headshots of brokers advertising with us, "Sell With a Broker" below. */
+.ad-brokers .ab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 28px; margin-top: 10px; }
+.ab-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; color: inherit; }
+.ab-card img { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; box-shadow: 0 14px 34px -14px rgba(12, 14, 17, .45); transition: transform .4s var(--ease-out); }
+.ab-card:hover img { transform: translateY(-4px); }
+.ab-card b { font-size: 1.1rem; }
+.ab-card span { font-size: .88rem; color: var(--muted); }
+.ab-cta { display: flex; justify-content: center; margin-top: 40px; }
