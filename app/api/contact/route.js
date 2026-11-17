@@ -30,7 +30,8 @@ async function recipientsFor(body) {
   if (about.kind === 'vendor') { const v = vendors().find((x) => x.slug === about.slug); if (v) add(v.contactName || v.name, v.email, 'vendor'); }
   if (body.listingId) {
     const l = allListings().find((x) => String(x.id) === String(body.listingId));
-    if (l?.source === 'ads') add(l.ownerName || 'Owner', l.ownerEmail, 'owner');
+    // Sell With Marie parks: Marie is the broker, so buyers reach her only (she always gets a copy).
+    if (l?.source === 'ads' && l.adsPlanKey !== 'withbroker') add(l.ownerName || 'Owner', l.ownerEmail, 'owner');
     else if (l?.sellerName) { const b = brokerByName(l.sellerName); if (b) add(b.name, b.email, 'broker'); }
   }
   return out;

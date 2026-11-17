@@ -22,7 +22,7 @@ const STEPS = [
 
 const OPTIONS = [
   { n: '01', t: 'Sell With a Broker', d: 'Professional representation, valuation help, negotiation and transaction support from brokers who specialize in RV parks.', fee: 'No upfront advertising fee. Your broker is paid a commission only when your park sells.', cta: 'Meet Our Brokers', href: '/brokers/', img: '/images/site/1956989740-scaled.jpg' },
-  { n: '02', t: 'Advertise It Yourself', d: 'Put your park in front of RV park buyers with RVParkAds, with no broker and no commission. Inquiries go straight to you.', fee: 'One flat plan: $99/month. No commission, ever.', cta: 'See the RVParkAds Plan ↗', href: `${SITE.ads}/#plans`, ext: true, img: '/images/site/rv-parks-2.jpg' },
+  { n: '02', t: 'Advertise It Yourself', d: 'Put your park in front of RV park buyers with RVParkAds, with no broker and no commission. Inquiries go straight to you.', fee: '$99/month with no commission, or $49/month with Marie as your broker.', cta: 'See RVParkAds Plans ↗', href: `${SITE.ads}/#plans`, ext: true, img: '/images/site/rv-parks-2.jpg' },
   { n: '03', t: 'Grow Its Value First', d: 'Not ready yet? Learn how to raise revenue and improve operations so your park is worth more when you go to market.', fee: 'Free resources to start.', cta: 'Visit RVParkSuccess ↗', href: SITE.success, ext: true, img: '/images/site/mobile-home-parks-1.jpg' },
 ];
 
@@ -101,7 +101,7 @@ export default async function SellPage() {
           <div className="cn-head">
             <p className="eyebrow">(02) Advertise it yourself</p>
             <Split as="h2" text={'A listing site lists\nyour park. *We market it.*'} className="cn-title" />
-            <p className="cn-lede">One simple plan, $99 a month, and it is a marketing program, not just a spot in a directory. Your park goes to registered RVParkSelect buyers first, and every inquiry comes straight to you.</p>
+            <p className="cn-lede">Sell it yourself for $99/month with no commission, or pay $49/month with Marie as your broker. Either way it is a marketing program, not just a spot in a directory. Your park goes to registered RVParkSelect buyers first, and every inquiry comes straight to you.</p>
           </div>
           <div className="ad-plans" data-reveal="stagger">
             {AD_PLANS.map((p) => (

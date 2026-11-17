@@ -17,8 +17,8 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 const toHtml = (text) => (text ? String(text).split(/\n\s*\n/).map((p) => `<p>${esc(p.trim()).replace(/\n/g, '<br />')}</p>`).join('') : '');
 const s = (v) => (v == null || v === '' ? null : String(v));
 
-const PLAN_FEATURED = { level1: '', level2: 'featured', level3: 'spotlight' };
-const PLAN_NAMES = { level1: 'Professional Listing', level2: 'Buyer Exposure', level3: 'Full Marketing Campaign' };
+const PLAN_FEATURED = { level1: '', withbroker: '', level2: 'featured', level3: 'spotlight' };
+const PLAN_NAMES = { level1: 'Sell It Yourself', withbroker: 'Sell With Marie (broker)', level2: 'Buyer Exposure', level3: 'Full Marketing Campaign' };
 
 export async function POST(req) {
   const secret = process.env.ADS_IMPORT_SECRET;
@@ -83,6 +83,9 @@ export async function POST(req) {
   if (b.planKey && PLAN_FEATURED[b.planKey] !== undefined) {
     l.featured = PLAN_FEATURED[b.planKey];
     l.adsPlan = PLAN_NAMES[b.planKey];
+    l.adsPlanKey = b.planKey;
+    // Sell With Marie: she is the listing broker, so she is the contact on the page.
+    if (b.planKey === 'withbroker') { l.sellerName = 'Marie Hansen'; l.byOwner = false; }
   }
 
   // Map pin (and state) from the seller's address: RVParkAds sends neither.
