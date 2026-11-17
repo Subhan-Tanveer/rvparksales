@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import ListingsArchive from '@/components/ListingsArchive';
 import PageBand from '@/components/PageBand';
 import ParkIndex from '@/components/ParkIndex';
+import PricingSection, { PricingStrip } from '@/components/PricingSection';
 import { JsonLd, breadcrumbs, itemList } from '@/lib/seo';
 import Link from 'next/link';
 import { allListings, featuredRank, statesWithListings, stateSlug, loadContent, SITE } from '@/lib/content';
@@ -84,6 +85,7 @@ export default async function StatePage({ params }) {
     <>
       <JsonLd data={[breadcrumbs([['Home', '/'], ['RV Parks for Sale', '/listings/'], [`${name} RV Parks for Sale`]]), itemList(parks.filter((l) => l.status === 'For Sale'))]} />
       <PageBand title={`${name} RV Parks and Campgrounds`} kicker="Browse by state" sub={`This is where you will find a list of RV Parks for sale in ${name} as well as a list of Campgrounds for sale in ${name}.`} crumbs={[{ label: 'RV Parks for Sale', href: '/listings/?_listing_status=for-sale' }, { label: name }]} compact />
+      <PricingStrip />
       {listed && (
         <Suspense fallback={<p style={{ padding: 40 }}>Loading listings…</p>}>
           <ListingsArchive listings={listings} fixedState={name} pinColor="purple" defaultStatus="for-sale" />
@@ -93,6 +95,7 @@ export default async function StatePage({ params }) {
       {nearby.length > 0 && (
         <ParkIndex title={bordering ? `RV parks for sale near ${name}` : 'Featured RV parks for sale nationwide'} intro={`Parks for sale right now in ${nearStates.slice(0, 8).join(', ')}.`} listings={nearby} />
       )}
+      <PricingSection eyebrow={`Selling a park in ${name}?`} />
       <section className="l-section park-index state-cta">
         <div className="l-section-h">
           <h2>{`Buying or selling an RV park in ${name}?`}</h2>

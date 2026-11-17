@@ -882,3 +882,7 @@ body { overflow: visible !important; }
 .pricing-faq summary::after { content: '+'; color: var(--accent); font-weight: 700; }
 .pricing-faq details[open] summary::after { content: '−'; }
 .pricing-faq p { margin: 12px 0 0; line-height: 1.65; color: var(--text); }
+
+/* Slim "see pricing" bar above the park search. */
+.pricing-strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 22px; padding: 14px 20px; background: var(--ink); color: #fff; text-align: center; font-size: .98rem; }
+.pricing-strip b { color: var(--accent-2); }

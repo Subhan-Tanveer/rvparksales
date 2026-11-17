@@ -4,6 +4,7 @@ import ListingGallery from '@/components/ListingGallery';
 import PageBand from '@/components/PageBand';
 import ListingPopups from '@/components/ListingPopups';
 import ViewTracker from '@/components/ViewTracker';
+import PricingSection from '@/components/PricingSection';
 import { allListings, listingBySlug, textOf, metaTitle, SITE, loadContent, stateSlug } from '@/lib/content';
 import { JsonLd, absUrl, isoDate, breadcrumbs, ORG_ID } from '@/lib/seo';
 
@@ -165,6 +166,7 @@ export default async function ListingPage({ params }) {
           </aside>
         </div>
       </section>
+      <PricingSection eyebrow="Selling a park like this one?" />
       <div className="mobile-cta"><button type="button" className="btn btn-block trigger-contact-popup">Get More Information</button></div>
       <ListingPopups title={l.title} url={url} listingId={String(l.id)} />
       <ViewTracker id={String(l.id)} />
