@@ -33,7 +33,7 @@ export default async function ListingsPage() {
         <ListingsArchive listings={leanListings()} />
       </Suspense>
       <PricingSection />
-      <ParkIndex title="Every RV park and campground on RVParkSales.com" listings={all} states={US_STATES} />
+      <ParkIndex title="Browse RV parks by state" listings={all} states={US_STATES} collapsed />
     </>
   );
 }

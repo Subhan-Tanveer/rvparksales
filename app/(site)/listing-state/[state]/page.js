@@ -91,7 +91,7 @@ export default async function StatePage({ params }) {
           <ListingsArchive listings={listings} fixedState={name} pinColor="purple" defaultStatus="for-sale" />
         </Suspense>
       )}
-      <ParkIndex title={`RV parks and campgrounds for sale in ${name}`} intro={stateIntro(name, parks)} listings={parks} />
+      <ParkIndex title={`RV parks and campgrounds for sale in ${name}`} intro={stateIntro(name, parks)} listings={parks} collapsed={listed} />
       {nearby.length > 0 && (
         <ParkIndex title={bordering ? `RV parks for sale near ${name}` : 'Featured RV parks for sale nationwide'} intro={`Parks for sale right now in ${nearStates.slice(0, 8).join(', ')}.`} listings={nearby} />
       )}
