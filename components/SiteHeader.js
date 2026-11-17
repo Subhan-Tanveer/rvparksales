@@ -29,6 +29,7 @@ const MENU = [
       { label: 'RV Park Developers', href: '/developers/' },
     ],
   },
+  { label: 'Pricing', href: '/pricing/' },
   { label: 'RVParkSelect', href: 'https://rvparkselect.com', external: true },
   { label: 'RVParkAds', href: 'https://rvparkads.com', external: true },
   { label: 'RVParkSuccess', href: 'https://www.rvparksuccess.com', external: true },

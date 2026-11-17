@@ -18,6 +18,7 @@ export async function GET() {
   const entries = [
     ['/', 'weekly', 1],
     ['/listings/', 'daily', 0.9],
+    ['/pricing/', 'monthly', 0.8],
     ['/brokers/', 'monthly', 0.6],
     ['/blog-buying-and-selling-rv-parks/', 'weekly', 0.7],
     ['/reviews/', 'monthly', 0.5],

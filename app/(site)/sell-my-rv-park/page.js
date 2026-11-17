@@ -5,7 +5,8 @@ import SellerForm from '@/components/SellerForm';
 import Split from '@/components/fx/Split';
 import Marquee from '@/components/fx/Marquee';
 import { SITE, testimonials, listingsForSale, advertisingBrokers, loadContent } from '@/lib/content';
-import { AD_PLANS, buyerCount } from '@/lib/plans';
+import { buyerCount } from '@/lib/plans';
+import AdPlans from '@/components/AdPlans';
 
 export const metadata = {
   title: { absolute: 'Sell My RV Park or Campground | RV Park Broker & Marketing | RV Park Sales' },
@@ -99,33 +100,11 @@ export default async function SellPage() {
       <section className="cn-sec cn-paper" id="plans">
         <div className="l-section-h">
           <div className="cn-head">
-            <p className="eyebrow">(02) Advertise it yourself</p>
+            <p className="eyebrow">(02) Pricing</p>
             <Split as="h2" text={'A listing site lists\nyour park. *We market it.*'} className="cn-title" />
-            <p className="cn-lede">Sell it yourself for $99/month with no commission, or pay $49/month with Marie as your broker. Either way it is a marketing program, not just a spot in a directory. Your park goes to registered RVParkSelect buyers first, and every inquiry comes straight to you.</p>
+            <p className="cn-lede">Sell it yourself for $99/month with no commission, or pay $49/month with Marie as your broker. Either way it is a marketing program, not just a spot in a directory: your park is marketed to our buyer database and goes to registered RVParkSelect buyers first.</p>
           </div>
-          <div className="ad-plans" data-reveal="stagger">
-            {AD_PLANS.map((p) => (
-              <div key={p.key} className={`ad-plan ${p.popular ? 'pop' : ''}`}>
-                {p.popular && <span className="ad-pop">Most popular</span>}
-                <span className="ad-level">{p.level}</span>
-                <h3>{p.name}</h3>
-                <p className="ad-tag">{p.tagline}</p>
-                <p className="ad-price"><b>${p.price}</b>/month</p>
-                <p className="ad-min">{p.min}</p>
-                <ul>
-                  {p.includes && <li className="inc">{p.includes}</li>}
-                  {p.features.map((f) => <li key={f}>{f}</li>)}
-                </ul>
-                <a className={`btn btn-lg ${p.popular ? '' : 'btn-ink'}`} href={`${SITE.ads}/#plans`} target="_blank" rel="noopener">Choose {p.name} ↗</a>
-              </div>
-            ))}
-          </div>
-          <div className="ad-promise" data-reveal="stagger">
-            <span><b>No commission.</b> Ever.</span>
-            <span><b>No long-term contract.</b></span>
-            <span><b>Inquiries go straight to you.</b></span>
-            <span><b>Want a broker instead?</b> No upfront fee.</span>
-          </div>
+          <AdPlans />
         </div>
       </section>
 

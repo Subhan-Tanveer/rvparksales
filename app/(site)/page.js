@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import AdPlans from '@/components/AdPlans';
 import Hero from '@/components/home/Hero';
 import BrandScene from '@/components/home/BrandScene';
 import GoalList from '@/components/home/GoalList';
@@ -170,6 +171,17 @@ export default async function Home() {
       </section>
 
       {/* Nationwide: globe + numbers */}
+      <section className="cn-sec cn-paper2" id="pricing">
+        <div className="l-section-h">
+          <div className="cn-head">
+            <p className="eyebrow">Pricing for sellers</p>
+            <Split as="h2" text={'Advertise your\npark from *$49/month*'} className="cn-title" />
+            <p className="cn-lede">Sell it yourself for $99/month with no commission, or pay just $49/month with Marie Hansen as your broker.</p>
+          </div>
+          <AdPlans />
+        </div>
+      </section>
+
       <section className="cn-sec cn-ink nation">
         <div className="l-section-h nation-in">
           <div className="nation-copy">

@@ -874,3 +874,11 @@ body { overflow: visible !important; }
 .ab-card b { font-size: 1.1rem; }
 .ab-card span { font-size: .88rem; color: var(--muted); }
 .ab-cta { display: flex; justify-content: center; margin-top: 40px; }
+
+/* Pricing page */
+.buyer-plans .ad-tag { margin-bottom: 22px; flex: 1; }
+.pricing-faq details { border-bottom: 1px solid var(--line); padding: 18px 0; }
+.pricing-faq summary { cursor: pointer; font-weight: 600; font-size: 1.08rem; list-style: none; display: flex; justify-content: space-between; gap: 20px; }
+.pricing-faq summary::after { content: '+'; color: var(--accent); font-weight: 700; }
+.pricing-faq details[open] summary::after { content: '−'; }
+.pricing-faq p { margin: 12px 0 0; line-height: 1.65; color: var(--text); }
