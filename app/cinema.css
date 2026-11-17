@@ -346,7 +346,7 @@ h1, h2, h3, h4 { color: var(--ink); }
 .stc-copy p.stc-fee { margin: -18px 0 30px; padding-left: 14px; border-left: 3px solid var(--accent); font-size: 1rem; color: #fff; font-weight: 600; }
 
 /* Sell page: RVParkAds packages */
-.ad-plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; align-items: stretch; }
+.ad-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 460px)); justify-content: center; gap: 22px; align-items: stretch; }
 .ad-plan { position: relative; display: flex; flex-direction: column; padding: 34px 28px 28px; border-radius: 24px; background: #fff; border: 1px solid var(--line); }
 .ad-plan.pop { background: var(--ink); color: #fff; border-color: var(--ink); transform: translateY(-10px); box-shadow: 0 30px 60px -30px rgba(12, 14, 17, .5); }
 .ad-pop { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--ink); font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
